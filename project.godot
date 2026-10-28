@@ -9,6 +9,7 @@ config_version=5
 config/name="Boxing"
 run/main_scene="res://game/local_match.tscn"
 config/features=PackedStringArray("4.7", "Mobile")
+config/icon="res://icon.svg"
 
 [autoload]
 
@@ -25,10 +26,16 @@ window/size/viewport_height=720
 window/stretch/mode="canvas_items"
 window/stretch/aspect="expand"
 window/handheld/orientation=4
+window/ios/hide_home_indicator=true
+window/ios/suppress_ui_gesture=true
 
 [editor_plugins]
 
 enabled=PackedStringArray("res://addons/gut/plugin.cfg", "res://addons/netfox.internals/plugin.cfg", "res://addons/netfox/plugin.cfg")
+
+[input_devices]
+
+pointing/emulate_touch_from_mouse=true
 
 [netfox]
 
@@ -39,3 +46,4 @@ rollback/history_limit=64
 
 renderer/rendering_method="mobile"
 renderer/rendering_method.mobile="mobile"
+textures/vram_compression/import_etc2_astc=true

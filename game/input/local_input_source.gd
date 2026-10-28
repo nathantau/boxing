@@ -1,8 +1,6 @@
 class_name LocalInputSource
+extends InputSource
 ## One player's keyboard set plus one gamepad, turned into InputBits.
-## Call sample() every rendered frame and consume() once per sim tick: anything pressed
-## since the last tick is latched, so a tap shorter than a tick is never lost, and when
-## several ticks run in one frame the press only shows up in the first.
 
 const P1_KEYS := {
 	InputBits.JAB: [KEY_W],
@@ -40,22 +38,11 @@ const TRIGGER_THRESHOLD := 0.5
 var _keys: Dictionary
 ## Index into Input.get_connected_joypads(), so P1 gets the first pad and P2 the second.
 var _pad_slot: int
-var _latched := 0
 
 
 func _init(keys: Dictionary, pad_slot: int) -> void:
 	_keys = keys
 	_pad_slot = pad_slot
-
-
-func sample() -> void:
-	_latched |= _read()
-
-
-func consume() -> int:
-	var bits := _latched | _read()
-	_latched = 0
-	return bits
 
 
 func _read() -> int:
