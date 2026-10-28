@@ -18,6 +18,7 @@ NetworkTimeSynchronizer="*res://addons/netfox/network-time-synchronizer.gd"
 NetworkRollback="*res://addons/netfox/rollback/network-rollback.gd"
 NetworkEvents="*res://addons/netfox/network-events.gd"
 NetworkPerformance="*res://addons/netfox/network-performance.gd"
+Net="*res://net/net.gd"
 
 [display]
 
@@ -40,6 +41,7 @@ pointing/emulate_touch_from_mouse=true
 [netfox]
 
 time/tickrate=60
+rollback/enabled=false
 rollback/history_limit=64
 
 [rendering]

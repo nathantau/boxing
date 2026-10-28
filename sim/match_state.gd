@@ -81,10 +81,14 @@ func copy() -> MatchState:
 	return s
 
 
-## 32-bit FNV-1a over every byte of the packed state. Identical on every platform.
 func state_hash() -> int:
+	return hash_packed(pack())
+
+
+## 32-bit FNV-1a over every byte of a packed state. Identical on every platform.
+static func hash_packed(data: PackedInt64Array) -> int:
 	var h := 2166136261
-	for value in pack():
+	for value in data:
 		for shift in range(0, 64, 8):
 			h = ((h ^ ((value >> shift) & 0xFF)) * 16777619) & 0xFFFFFFFF
 	return h
