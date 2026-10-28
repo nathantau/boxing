@@ -9,12 +9,13 @@ extends Node
 ##   --lag=LATENCY,JITTER,LOSS simulated network (ms, ms, %)
 ##   --input-delay=N           ticks of input delay (default 2)
 ##   --test-seconds=N          print stats and checkpoint hashes after N seconds, then quit
+##   --short-rounds            10 s rounds, first to 1 (both peers must pass it)
+##   --auto-rematch            vote for a rematch as soon as a match ends
 
 const MAX_CATCH_UP_TICKS := 4
 const DEFAULT_INPUT_DELAY := 2
 
 @export var moves: MoveSet = preload("res://sim/moves.tres")
-@export var menu_scene := "res://ui/main_menu.tscn"
 
 @onready var _view: MatchView = $MatchView
 @onready var _overlay: NetDebugOverlay = $NetDebugOverlay
@@ -37,8 +38,14 @@ var _args := {}
 
 
 func _ready() -> void:
-	_view.moves = moves
 	_parse_args()
+	if _args.has("short-rounds"):
+		moves = moves.duplicate(true)
+		moves.round_ticks = 600
+		moves.rounds_to_win = 1
+		moves.intro_ticks = 30
+		moves.round_over_ticks = 60
+	_view.moves = moves
 	_source = _make_source()
 	_overlay.match = self
 	Net.confirmed_state_provider = func() -> PackedInt64Array:
@@ -47,8 +54,15 @@ func _ready() -> void:
 	Net.inputs_received.connect(_on_inputs)
 	Net.status_changed.connect(_on_status)
 	Net.session_ended.connect(_on_session_ended)
+	Net.rematch_votes_changed.connect(_on_rematch_votes)
 	NetworkTime.on_tick.connect(_on_tick)
+	_view.menu_pressed.connect(_leave)
+	_view.results.menu_pressed.connect(_leave)
+	_view.results.rematch_pressed.connect(_on_rematch_pressed)
 	_on_status(Net.status)
+	var pending := Net.take_pending_start()
+	if not pending.is_empty():
+		_on_match_ready(pending[0], pending[1])
 
 	if Net.role == Net.Role.NONE:
 		if _args.has("host"):
@@ -70,6 +84,8 @@ func _process(_delta: float) -> void:
 	_source.sample()
 	if session != null:
 		_view.show_state(session.state)
+		if _args.has("auto-rematch") and session.state.phase == MatchState.Phase.MATCH_OVER and not Net.i_want_rematch():
+			_on_rematch_pressed()
 	_view.debug_label.text = _debug_text()
 	if _test_until > 0 and session != null and Engine.get_process_frames() % 120 == 0:
 		print("STAT t=%d sim=%d net=%d depth=%d stalls=%d rollbacks=%d" % [Time.get_ticks_msec(), session.state.tick,
@@ -86,10 +102,11 @@ func _unhandled_input(event: InputEvent) -> void:
 			KEY_F3:
 				_view.debug_label.visible = not _view.debug_label.visible
 			KEY_ESCAPE:
-				Net.leave("You left the match.")
+				_leave()
 
 
 func _on_match_ready(start_tick: int, packed: PackedInt64Array) -> void:
+	Net.take_pending_start()
 	var state := MatchState.create(moves)
 	if not packed.is_empty():
 		state.unpack(packed)
@@ -153,10 +170,24 @@ func _on_session_ended(reason: String) -> void:
 		print("SESSION ENDED: ", reason)
 		get_tree().quit(1)
 		return
-	if ResourceLoader.exists(menu_scene):
-		get_tree().change_scene_to_file(menu_scene)
+	Game.goto(Game.MENU)
+
+
+func _leave() -> void:
+	if Net.role == Net.Role.NONE:
+		Game.goto(Game.MENU)
 	else:
-		_on_status(reason)
+		Net.leave()  # session_ended takes us to the menu
+
+
+func _on_rematch_pressed() -> void:
+	Net.vote_rematch()
+	_view.results.set_status("Waiting for your opponent…", true)
+
+
+func _on_rematch_votes() -> void:
+	if Net.opponent_wants_rematch() and not Net.i_want_rematch():
+		_view.results.set_status("Your opponent wants a rematch!")
 
 
 func _make_source() -> InputSource:

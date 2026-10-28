@@ -35,6 +35,11 @@ func remote_peer_id() -> int:
 	return 0
 
 
+## Send anything queued right now (before closing).
+func flush() -> void:
+	pass
+
+
 ## Simulated network conditions for testing (see LagPeer).
 func set_lag(_latency_ms: int, _jitter_ms: int, _loss_percent: float) -> void:
 	pass

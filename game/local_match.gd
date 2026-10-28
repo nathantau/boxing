@@ -7,8 +7,6 @@ const USEC := 1_000_000
 const MAX_TICKS_PER_FRAME := 4
 
 @export var moves: MoveSet = preload("res://sim/moves.tres")
-## P2 starts as this AI level; key 2 cycles human -> easy -> normal -> hard.
-@export var p2_ai_level := AISource.Level.NORMAL
 
 @onready var _view: MatchView = $MatchView
 
@@ -27,16 +25,15 @@ func _ready() -> void:
 	_view.moves = moves
 	var ai_vs_ai := "--ai-vs-ai" in OS.get_cmdline_user_args()
 	_set_control(0, AISource.Level.HARD if ai_vs_ai else -1)
-	_set_control(1, p2_ai_level)
+	_set_control(1, Game.p2_control)
 	_view.set_viewer(0)
+	_view.menu_pressed.connect(Game.goto.bind(Game.MENU))
+	_view.results.menu_pressed.connect(Game.goto.bind(Game.MENU))
+	_view.results.rematch_pressed.connect(func() -> void: state = MatchState.create(moves))
 	_last_usec = Time.get_ticks_usec()
 
 
 func _unhandled_input(event: InputEvent) -> void:
-	var touch := event as InputEventScreenTouch
-	if touch and touch.pressed and state.phase == MatchState.Phase.MATCH_OVER:
-		state = MatchState.create(moves)
-		return
 	var key := event as InputEventKey
 	if key and key.pressed and not key.echo:
 		match key.physical_keycode:
@@ -44,6 +41,8 @@ func _unhandled_input(event: InputEvent) -> void:
 				_view.set_viewer(1 - _view.viewer)
 			KEY_R:
 				state = MatchState.create(moves)
+			KEY_ESCAPE:
+				Game.goto(Game.MENU)
 			KEY_T:
 				_view.touch.visible = not _view.touch.visible
 			KEY_F3:
@@ -113,5 +112,5 @@ func _debug_text() -> String:
 	lines.append("P1  W jab  Q/E hooks  S uppercut  A/D dodge  Space block   (pad 1: X, LB/RB, Y, d-pad/stick, B/RT)")
 	lines.append("P2  I jab  U/O hooks  K uppercut  J/L dodge  P block       (pad 2: same)")
 	lines.append("1/2 toggle P1 AI / cycle P2 human-easy-normal-hard")
-	lines.append("C swap camera   R restart   T touch overlay (mouse drags act as touches)   F3 hide this")
+	lines.append("C swap camera   R restart   Esc menu   T touch overlay (mouse drags act as touches)   F3 hide this")
 	return "\n".join(lines)

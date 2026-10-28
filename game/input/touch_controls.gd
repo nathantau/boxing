@@ -7,6 +7,9 @@ extends Control
 
 enum Zone { SWIPE, DODGE_L, DODGE_R, SHIELD }
 
+## Touches that start on a visible Control in this group (menu buttons etc.) are left alone.
+const BLOCKER_GROUP := &"touch_blockers"
+
 ## Width of each dodge strip, as a fraction of the safe-area width.
 const DODGE_STRIP := 0.17
 ## Shield diameter as a fraction of the safe-area height (about 88 pt on a modern iPhone).
@@ -74,6 +77,8 @@ func _input(event: InputEvent) -> void:
 	if event is InputEventScreenTouch:
 		var touch := event as InputEventScreenTouch
 		if touch.pressed:
+			if _over_blocker(touch.position):
+				return
 			var t := Touch.new()
 			t.zone = _zone_at(touch.position)
 			t.start = touch.position
@@ -113,6 +118,14 @@ func _track_swipe(t: Touch, pos: Vector2) -> void:
 		_fire(t, InputBits.HOOK_L)
 	else:
 		_fire(t, InputBits.HOOK_R)
+
+
+func _over_blocker(pos: Vector2) -> bool:
+	for node in get_tree().get_nodes_in_group(BLOCKER_GROUP):
+		var control := node as Control
+		if control and control.is_visible_in_tree() and control.get_global_rect().has_point(pos):
+			return true
+	return false
 
 
 func _fire(t: Touch, bits: int) -> void:

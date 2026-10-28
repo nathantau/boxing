@@ -57,6 +57,13 @@ func close() -> void:
 	_lag = null
 
 
+func flush() -> void:
+	if _lag != null:
+		_lag.flush_now()
+	if _enet != null and _enet.host != null:
+		_enet.host.flush()
+
+
 func is_connected_to_peer() -> bool:
 	return _remote_id != 0
 

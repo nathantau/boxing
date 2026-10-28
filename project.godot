@@ -7,7 +7,7 @@ config_version=5
 [application]
 
 config/name="Boxing"
-run/main_scene="res://game/local_match.tscn"
+run/main_scene="res://ui/main_menu.tscn"
 config/features=PackedStringArray("4.7", "Mobile")
 config/icon="res://icon.svg"
 
@@ -19,6 +19,7 @@ NetworkRollback="*res://addons/netfox/rollback/network-rollback.gd"
 NetworkEvents="*res://addons/netfox/network-events.gd"
 NetworkPerformance="*res://addons/netfox/network-performance.gd"
 Net="*res://net/net.gd"
+Game="*res://game/game.gd"
 
 [display]
 
@@ -34,6 +35,10 @@ window/ios/suppress_ui_gesture=true
 
 enabled=PackedStringArray("res://addons/gut/plugin.cfg", "res://addons/netfox.internals/plugin.cfg", "res://addons/netfox/plugin.cfg")
 
+[gui]
+
+theme/custom="res://ui/theme.tres"
+
 [input_devices]
 
 pointing/emulate_touch_from_mouse=true
@@ -42,6 +47,7 @@ pointing/emulate_touch_from_mouse=true
 
 time/tickrate=60
 rollback/enabled=false
+events/enabled=false
 rollback/history_limit=64
 
 [rendering]

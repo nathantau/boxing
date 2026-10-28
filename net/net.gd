@@ -10,8 +10,9 @@ signal status_changed(text: String)
 ## Both peers: start simulating `state` (empty = new match) at NetworkTime tick `start_tick`.
 signal match_ready(start_tick: int, state: PackedInt64Array)
 signal inputs_received(first_tick: int, bits: PackedByteArray, ack: int, hash_tick: int, hash: int, sent_usec: int, echo_usec: int, hold_usec: int)
-## The session is over (gave up reconnecting, host left, failed to connect). Show `reason`.
+## The session is over (gave up reconnecting, opponent left, failed to connect). Show `reason`.
 signal session_ended(reason: String)
+signal rematch_votes_changed
 
 enum Role { NONE, HOST, CLIENT }
 
@@ -33,6 +34,10 @@ var confirmed_state_provider := Callable()
 ## Last reason a session ended, for the menu to show.
 var end_reason := ""
 var status := ""
+## The last start/resume, kept until a match scene picks it up: [start_tick, state].
+var pending_start: Array = []
+
+var _rematch_votes := [false, false]
 
 var _lost_at := 0
 var _next_retry := 0
@@ -80,10 +85,16 @@ func join(address: String, on_port := NetworkTransport.DEFAULT_PORT) -> Error:
 	return OK
 
 
-func leave(reason := "") -> void:
+## End the session. Unless `notify` is false, tell the opponent first so they don't wait
+## out the reconnect window.
+func leave(reason := "", notify := true) -> void:
 	if role == Role.NONE:
 		return
+	if notify and transport.is_connected_to_peer():
+		_bye.rpc_id(transport.remote_peer_id())
+		transport.flush()
 	role = Role.NONE
+	pending_start = []
 	in_match = false
 	_lost_at = 0
 	transport.close()
@@ -104,6 +115,24 @@ func send_inputs(first_tick: int, bits: PackedByteArray, ack: int, hash_tick: in
 	if not transport.is_connected_to_peer() or not in_match:
 		return
 	_inputs.rpc_id(transport.remote_peer_id(), epoch, first_tick, bits, ack, hash_tick, hash, sent_usec, echo_usec, hold_usec)
+
+
+func take_pending_start() -> Array:
+	var p := pending_start
+	pending_start = []
+	return p
+
+
+func vote_rematch() -> void:
+	_vote_rematch.rpc(local_player)
+
+
+func i_want_rematch() -> bool:
+	return _rematch_votes[local_player]
+
+
+func opponent_wants_rematch() -> bool:
+	return _rematch_votes[1 - local_player]
 
 
 ## Ask the host to restart both peers from its confirmed state (after a desync).
@@ -182,9 +211,9 @@ func _on_connect_failed() -> void:
 		leave("Couldn't connect to %s:%d." % [last_address, port])
 
 
-func _send_start() -> void:
+func _send_start(fresh := false) -> void:
 	var state := PackedInt64Array()
-	if in_match and confirmed_state_provider.is_valid():
+	if in_match and not fresh and confirmed_state_provider.is_valid():
 		state = confirmed_state_provider.call()
 	_start.rpc(NetworkTime.tick + START_DELAY_TICKS, state, epoch + 1)
 
@@ -195,8 +224,23 @@ func _start(start_tick: int, state: PackedInt64Array, new_epoch: int) -> void:
 	in_match = true
 	_lost_at = 0
 	_paused_at = 0
+	_rematch_votes = [false, false]
 	_set_status("")
+	pending_start = [start_tick, state]
 	match_ready.emit(start_tick, state)
+
+
+@rpc("any_peer", "call_local", "reliable")
+func _vote_rematch(player: int) -> void:
+	_rematch_votes[player] = true
+	rematch_votes_changed.emit()
+	if role == Role.HOST and _rematch_votes[0] and _rematch_votes[1]:
+		_send_start(true)
+
+
+@rpc("any_peer", "call_remote", "reliable")
+func _bye() -> void:
+	leave("Your opponent left the match.", false)
 
 
 @rpc("any_peer", "call_remote", "reliable")

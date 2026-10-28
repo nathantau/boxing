@@ -146,7 +146,6 @@ func _draw_banner() -> void:
 			subtitle = _result_text(state.round_winner, "ROUND")
 		MatchState.Phase.MATCH_OVER:
 			title = _result_text(state.match_winner, "MATCH")
-			subtitle = "Tap or press R for a rematch"
 	if title == "":
 		return
 	var center := _safe.get_center() + Vector2(0, -6.0 * u)

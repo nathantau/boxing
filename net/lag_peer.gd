@@ -24,6 +24,7 @@ var _stream_release := {}
 var _target_peer := 0
 var _transfer_mode := TRANSFER_MODE_RELIABLE
 var _transfer_channel := 0
+var _connected := {}
 
 
 class Packet:
@@ -43,10 +44,15 @@ func _init(inner: MultiplayerPeer) -> void:
 
 
 func _on_inner_peer_connected(id: int) -> void:
+	_connected[id] = true
 	peer_connected.emit(id)
 
 
 func _on_inner_peer_disconnected(id: int) -> void:
+	# Packets still in the delay queues for a peer that's gone would be errors to deliver.
+	_connected.erase(id)
+	_incoming = _incoming.filter(func(p: Packet) -> bool: return p.peer != id)
+	_outgoing = _outgoing.filter(func(p: Packet) -> bool: return p.peer != id)
 	peer_disconnected.emit(id)
 
 
@@ -175,9 +181,16 @@ func _release_time(now: int, p: Packet, direction: String) -> int:
 	return release
 
 
+## Send every queued packet immediately, ignoring simulated delay.
+func flush_now() -> void:
+	_flush_outgoing(1 << 62)
+
+
 func _flush_outgoing(now: int) -> void:
 	while not _outgoing.is_empty() and _outgoing[0].release_usec <= now:
 		var p: Packet = _outgoing.pop_front()
+		if p.peer > 0 and not _connected.has(p.peer):
+			continue
 		_inner.set_target_peer(p.peer)
 		_inner.transfer_mode = p.mode as TransferMode
 		_inner.transfer_channel = p.channel
