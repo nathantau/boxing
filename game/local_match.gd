@@ -17,12 +17,14 @@ const MOVE_NAMES := ["-", "jab", "hook L", "hook R", "uppercut", "dodge L", "dod
 @onready var _touch: TouchControls = $TouchLayer/TouchControls
 @onready var _hud: Hud = $HUDLayer/HUD
 
+## P2 starts as this AI level; key 2 cycles human -> easy -> normal -> hard.
+@export var p2_ai_level := AISource.Level.NORMAL
+
 var state: MatchState
 ## Every source for a player is ORed together, so P1 can mix keyboard, gamepad and touch.
-var _players: Array[Array] = [
-	[LocalInputSource.new(LocalInputSource.P1_KEYS, 0)],
-	[LocalInputSource.new(LocalInputSource.P2_KEYS, 1)],
-]
+var _players: Array[Array] = [[], []]
+## AI level per player, or -1 for human control.
+var _ai_levels := [-1, -1]
 ## Elapsed time scaled by TICK_RATE, in microseconds; one tick per USEC.
 var _acc := 0
 var _last_usec := 0
@@ -32,7 +34,9 @@ var _camera_player := 0
 func _ready() -> void:
 	state = MatchState.create(moves)
 	_hud.moves = moves
-	_players[0].append(_touch.source)
+	var ai_vs_ai := "--ai-vs-ai" in OS.get_cmdline_user_args()
+	_set_control(0, AISource.Level.HARD if ai_vs_ai else -1)
+	_set_control(1, p2_ai_level)
 	_set_camera(0)
 	get_viewport().size_changed.connect(_place_debug)
 	_place_debug()
@@ -55,6 +59,10 @@ func _unhandled_input(event: InputEvent) -> void:
 				_touch.visible = not _touch.visible
 			KEY_F3:
 				_debug.visible = not _debug.visible
+			KEY_1:
+				_set_control(0, -1 if _ai_levels[0] >= 0 else AISource.Level.HARD)
+			KEY_2:
+				_set_control(1, _ai_levels[1] + 1 if _ai_levels[1] < AISource.Level.HARD else -1)
 
 
 func _process(_delta: float) -> void:
@@ -67,6 +75,9 @@ func _process(_delta: float) -> void:
 	_last_usec = now
 	var ticks := 0
 	while _acc >= USEC and ticks < MAX_TICKS_PER_FRAME:
+		for sources in _players:
+			for source: InputSource in sources:
+				source.observe(state)
 		Sim.step(state, _consume(0), _consume(1), moves)
 		_acc -= USEC
 		ticks += 1
@@ -77,6 +88,24 @@ func _process(_delta: float) -> void:
 		_boxers[i].show_state(state.fighters[i], moves)
 	_hud.state = state
 	_debug.text = _debug_text()
+
+
+## level: an AISource.Level, or -1 for human (keyboard + gamepad, plus touch for P1).
+func _set_control(player: int, level: int) -> void:
+	_ai_levels[player] = level
+	if level >= 0:
+		_players[player] = [AISource.new(player, moves, level as AISource.Level, Time.get_ticks_usec())]
+		_hud.names[player] = "CPU"
+		return
+	var keys := LocalInputSource.P1_KEYS if player == 0 else LocalInputSource.P2_KEYS
+	_players[player] = [LocalInputSource.new(keys, player)]
+	if player == 0:
+		_players[player].append(_touch.source)
+	_hud.names[player] = "P%d" % (player + 1)
+
+
+func _control_name(player: int) -> String:
+	return "human" if _ai_levels[player] < 0 else "AI " + AISource.LEVEL_NAMES[_ai_levels[player]]
 
 
 func _consume(player: int) -> int:
@@ -104,13 +133,14 @@ func _debug_text() -> String:
 	])
 	for i in 2:
 		var f := state.fighters[i]
-		lines.append("P%d  HP %4d  ST %4d%s  %-9s %-8s f%-3d stun %-3d knock %d" % [
-			i + 1, f.health, f.stamina, "x" if f.exhausted else " ", ACTION_NAMES[f.action],
+		lines.append("P%d %-9s HP %4d  ST %4d%s  %-9s %-8s f%-3d stun %-3d knock %d" % [
+			i + 1, _control_name(i), f.health, f.stamina, "x" if f.exhausted else " ", ACTION_NAMES[f.action],
 			MOVE_NAMES[f.move], f.frame, f.stun, f.knock_meter])
 	if OS.has_feature("mobile"):
 		return "\n".join(lines)
 	lines.append("")
 	lines.append("P1  W jab  Q/E hooks  S uppercut  A/D dodge  Space block   (pad 1: X, LB/RB, Y, d-pad/stick, B/RT)")
 	lines.append("P2  I jab  U/O hooks  K uppercut  J/L dodge  P block       (pad 2: same)")
+	lines.append("1/2 toggle P1 AI / cycle P2 human-easy-normal-hard")
 	lines.append("C swap camera   R restart   T touch overlay (mouse drags act as touches)   F3 hide this")
 	return "\n".join(lines)

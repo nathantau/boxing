@@ -13,6 +13,12 @@ func press(bits: int) -> void:
 	_latched |= bits
 
 
+## Called once per sim tick with the state about to be stepped, before consume().
+## Only sources that react to the game (the AI) need it.
+func observe(_state: MatchState) -> void:
+	pass
+
+
 func sample() -> void:
 	_latched |= _read()
 
