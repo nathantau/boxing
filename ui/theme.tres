@@ -44,6 +44,12 @@ corner_radius_top_right = 14
 corner_radius_bottom_right = 14
 corner_radius_bottom_left = 14
 
+[sub_resource type="StyleBoxEmpty" id="toggle"]
+content_margin_left = 4.0
+content_margin_top = 4.0
+content_margin_right = 4.0
+content_margin_bottom = 4.0
+
 [resource]
 default_font_size = 26
 Button/styles/normal = SubResource("button_normal")
@@ -55,3 +61,8 @@ OptionButton/styles/hover = SubResource("button_hover")
 OptionButton/styles/pressed = SubResource("button_pressed")
 OptionButton/styles/focus = SubResource("button_hover")
 PanelContainer/styles/panel = SubResource("panel")
+CheckButton/styles/normal = SubResource("toggle")
+CheckButton/styles/pressed = SubResource("toggle")
+CheckButton/styles/hover = SubResource("toggle")
+CheckButton/styles/hover_pressed = SubResource("toggle")
+CheckButton/styles/focus = SubResource("toggle")

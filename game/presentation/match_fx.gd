@@ -115,7 +115,7 @@ func _shake(amount: float) -> void:
 
 
 func _haptic(duration_ms: int, amplitude: float) -> void:
-	if haptics_enabled:
+	if haptics_enabled and Settings.haptics:
 		Input.vibrate_handheld(duration_ms, amplitude)
 
 

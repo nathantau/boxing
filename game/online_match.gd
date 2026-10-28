@@ -7,13 +7,12 @@ extends Node
 ##   --host | --join=ADDRESS   start a session directly
 ##   --ai[=easy|normal|hard]   let the AI play for this peer
 ##   --lag=LATENCY,JITTER,LOSS simulated network (ms, ms, %)
-##   --input-delay=N           ticks of input delay (default 2)
+##   --input-delay=N           ticks of input delay (default: the Settings value)
 ##   --test-seconds=N          print stats and checkpoint hashes after N seconds, then quit
 ##   --short-rounds            10 s rounds, first to 1 (both peers must pass it)
 ##   --auto-rematch            vote for a rematch as soon as a match ends
 
 const MAX_CATCH_UP_TICKS := 4
-const DEFAULT_INPUT_DELAY := 2
 
 @export var moves: MoveSet = preload("res://sim/moves.tres")
 
@@ -22,7 +21,7 @@ const DEFAULT_INPUT_DELAY := 2
 @onready var _status: Label = $StatusLayer/Status
 
 var session: RollbackSession
-var input_delay := DEFAULT_INPUT_DELAY
+var input_delay := Settings.input_delay
 ## Round-trip time measured through our own packets (includes simulated lag), in ms.
 var rtt_ms := -1.0
 

@@ -12,6 +12,7 @@ extends Control
 @onready var _join_address: LineEdit = %JoinAddress
 @onready var _join_status: Label = %JoinStatus
 @onready var _join_button: Button = %JoinButton
+var _settings: SettingsPanel
 
 
 const DETERMINISM_REQUEST := "user://determinism_check.request"
@@ -27,6 +28,11 @@ func _ready() -> void:
 	%FightCPU.pressed.connect(_on_fight_cpu)
 	%Training.pressed.connect(Game.goto.bind(Game.TRAINING))
 	%DeterminismCheck.pressed.connect(_on_determinism_check)
+	_settings = SettingsPanel.new()
+	_settings.visible = false
+	_main.get_parent().add_child(_settings)
+	_settings.closed.connect(_show.bind(_main))
+	%SettingsButton.pressed.connect(func() -> void: _show(_settings))
 	_two_players.pressed.connect(_on_two_players)
 	%HostGame.pressed.connect(_on_host)
 	%JoinGame.pressed.connect(_show.bind(_join))
@@ -53,7 +59,9 @@ func _ready() -> void:
 
 	# Testing shortcuts: `-- --host` or `-- --join=ADDRESS` press the buttons for you.
 	for arg in OS.get_cmdline_user_args():
-		if arg == "--determinism-check":
+		if arg == "--settings":
+			_show(_settings)
+		elif arg == "--determinism-check":
 			print("DETERMINISM ", DeterminismCheck.describe(DeterminismCheck.run(preload("res://sim/moves.tres"))))
 			get_tree().quit()
 		elif arg == "--host":
@@ -65,8 +73,9 @@ func _ready() -> void:
 
 
 func _show(panel: Control) -> void:
-	for p in [_main, _host, _join]:
-		p.visible = p == panel
+	for p in [_main, _host, _join, _settings]:
+		if p != null:
+			p.visible = p == panel
 	if panel == _join:
 		_join_status.text = ""
 		_join_address.grab_focus()

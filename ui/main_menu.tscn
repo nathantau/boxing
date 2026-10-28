@@ -94,6 +94,11 @@ unique_name_in_owner = true
 layout_mode = 2
 text = "Join a LAN game"
 
+[node name="SettingsButton" type="Button" parent="SafeMargin/Center/Column/MainPanel"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Settings"
+
 [node name="DeterminismCheck" type="Button" parent="SafeMargin/Center/Column/MainPanel"]
 unique_name_in_owner = true
 layout_mode = 2

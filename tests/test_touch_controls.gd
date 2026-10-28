@@ -11,6 +11,10 @@ func before_each() -> void:
 	touch = TouchControls.new()
 	add_child_autofree(touch)
 	touch._safe = SAFE
+	# Defaults, regardless of what's saved in this machine's settings.
+	touch.hooks_follow_fist = true
+	touch.swipe_distance_scale = 1.0
+	touch.shield_position = Settings.Shield.CENTER
 
 
 func down(pos: Vector2, index := 0) -> void:
@@ -50,12 +54,12 @@ func test_swipe_up_is_jab() -> void:
 
 func test_swipe_right_is_left_hook() -> void:
 	# Hooks follow the fist: the left hook travels left to right.
-	var expected := InputBits.HOOK_L if TouchControls.HOOKS_FOLLOW_FIST else InputBits.HOOK_R
+	var expected := InputBits.HOOK_L
 	assert_eq(swipe([CENTER, CENTER + Vector2(70, -10)]), expected)
 
 
 func test_diagonal_up_left_is_hook() -> void:
-	var expected := InputBits.HOOK_R if TouchControls.HOOKS_FOLLOW_FIST else InputBits.HOOK_L
+	var expected := InputBits.HOOK_R
 	assert_eq(swipe([CENTER, CENTER + Vector2(-50, -40)]), expected)
 
 
@@ -104,3 +108,21 @@ func test_dodge_and_swipe_with_two_fingers() -> void:
 	down(CENTER, 1)
 	move(CENTER + Vector2(0, -60), 1)
 	assert_eq(touch.source.consume(), InputBits.DODGE_L | InputBits.JAB)
+
+
+func test_hook_direction_setting_flips_hooks() -> void:
+	touch.hooks_follow_fist = false
+	assert_eq(swipe([CENTER, CENTER + Vector2(70, -10)]), InputBits.HOOK_R)
+
+
+func test_low_sensitivity_needs_a_longer_swipe() -> void:
+	touch.swipe_distance_scale = 2.0
+	assert_eq(swipe([CENTER, CENTER + Vector2(0, -50)]), 0)
+	assert_eq(swipe([CENTER, CENTER + Vector2(0, -90)]), InputBits.JAB)
+
+
+func test_shield_can_move_to_a_side() -> void:
+	touch.shield_position = Settings.Shield.RIGHT
+	assert_gt(touch._shield_center().x, SAFE.get_center().x)
+	down(touch._shield_center())
+	assert_eq(touch.source.consume(), InputBits.BLOCK, "right-side shield beats the dodge strip")

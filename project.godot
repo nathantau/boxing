@@ -20,6 +20,7 @@ NetworkEvents="*res://addons/netfox/network-events.gd"
 NetworkPerformance="*res://addons/netfox/network-performance.gd"
 Net="*res://net/net.gd"
 Game="*res://game/game.gd"
+Settings="*res://game/settings.gd"
 
 [display]
 

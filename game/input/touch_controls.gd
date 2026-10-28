@@ -21,9 +21,15 @@ const SHIELD_MARGIN := 0.04
 const SWIPE_DISTANCE := 0.05
 ## Swipes within this angle of straight up are jabs; other upward/sideways swipes are hooks.
 const JAB_CONE_DEG := 30.0
-## Hooks follow the fist: a left hook travels left to right, so swiping right throws it.
-## Set false to make "swipe left" throw the left hook instead.
-const HOOKS_FOLLOW_FIST := true
+
+## From Settings. Hooks follow the fist: a left hook travels left to right, so swiping right
+## throws it; false makes "swipe left" throw the left hook instead.
+var hooks_follow_fist := true
+## Multiplier on SWIPE_DISTANCE (from the swipe sensitivity setting).
+var swipe_distance_scale := 1.0
+var shield_position := 0
+## Draw the zones; they work either way.
+var show_zones := true
 
 const ZONE_BITS := {
 	Zone.SWIPE: 0,
@@ -54,6 +60,10 @@ class Touch:
 
 
 func _ready() -> void:
+	hooks_follow_fist = Settings.hooks_follow_fist
+	swipe_distance_scale = Settings.swipe_distance_scale()
+	shield_position = Settings.shield_position
+	show_zones = Settings.show_touch_zones
 	set_anchors_preset(PRESET_FULL_RECT)
 	mouse_filter = MOUSE_FILTER_IGNORE
 	get_viewport().size_changed.connect(_layout)
@@ -98,7 +108,7 @@ func _input(event: InputEvent) -> void:
 
 
 func _track_swipe(t: Touch, pos: Vector2) -> void:
-	var min_distance := SWIPE_DISTANCE * _safe.size.y
+	var min_distance := SWIPE_DISTANCE * swipe_distance_scale * _safe.size.y
 	if t.dipping:
 		if pos.y > t.lowest.y:
 			t.lowest = pos
@@ -114,7 +124,7 @@ func _track_swipe(t: Touch, pos: Vector2) -> void:
 		t.lowest = pos
 	elif rad_to_deg(absf(Vector2.UP.angle_to(d))) <= JAB_CONE_DEG:
 		_fire(t, InputBits.JAB)
-	elif (d.x > 0.0) == HOOKS_FOLLOW_FIST:
+	elif (d.x > 0.0) == hooks_follow_fist:
 		_fire(t, InputBits.HOOK_L)
 	else:
 		_fire(t, InputBits.HOOK_R)
@@ -157,10 +167,19 @@ func _shield_radius() -> float:
 
 
 func _shield_center() -> Vector2:
-	return Vector2(_safe.get_center().x, _safe.end.y - _shield_radius() - SHIELD_MARGIN * _safe.size.y)
+	var x := _safe.get_center().x
+	# Left/right placements sit just inside the dodge strips, under the thumb.
+	var offset := DODGE_STRIP * _safe.size.x + _shield_radius() * 1.3
+	if shield_position == Settings.Shield.LEFT:
+		x = _safe.position.x + offset
+	elif shield_position == Settings.Shield.RIGHT:
+		x = _safe.end.x - offset
+	return Vector2(x, _safe.end.y - _shield_radius() - SHIELD_MARGIN * _safe.size.y)
 
 
 func _draw() -> void:
+	if not show_zones:
+		return
 	var strip := DODGE_STRIP * _safe.size.x
 	var left := Rect2(_safe.position, Vector2(strip, _safe.size.y))
 	var right := Rect2(Vector2(_safe.end.x - strip, _safe.position.y), Vector2(strip, _safe.size.y))

@@ -38,6 +38,7 @@ var _minute_fps: PackedFloat32Array = []
 func _ready() -> void:
 	fx.boxers = _boxers
 	fx.camera = _camera
+	debug_label.visible = Settings.show_debug
 	_menu_button = Button.new()
 	_menu_button.text = "MENU"
 	_menu_button.custom_minimum_size = Vector2(88, 44)
