@@ -29,3 +29,13 @@ extends Resource
 
 func total() -> int:
 	return startup + active + recovery
+
+
+## Frames the attacker is ahead (positive) or behind when this hits on its first active frame.
+func advantage_on_hit() -> int:
+	return hitstun - (active + recovery)
+
+
+## Same, when it's blocked.
+func advantage_on_block() -> int:
+	return blockstun - (active + recovery)

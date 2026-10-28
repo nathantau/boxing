@@ -21,6 +21,7 @@ func _ready() -> void:
 	_two_players.visible = not OS.has_feature("mobile")
 
 	%FightCPU.pressed.connect(_on_fight_cpu)
+	%Training.pressed.connect(Game.goto.bind(Game.TRAINING))
 	_two_players.pressed.connect(_on_two_players)
 	%HostGame.pressed.connect(_on_host)
 	%JoinGame.pressed.connect(_show.bind(_join))

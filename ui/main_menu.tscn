@@ -74,6 +74,11 @@ unique_name_in_owner = true
 custom_minimum_size = Vector2(170, 0)
 layout_mode = 2
 
+[node name="Training" type="Button" parent="SafeMargin/Center/Column/MainPanel"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Training (frame data)"
+
 [node name="TwoPlayers" type="Button" parent="SafeMargin/Center/Column/MainPanel"]
 unique_name_in_owner = true
 layout_mode = 2

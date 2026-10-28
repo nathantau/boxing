@@ -1,0 +1,13 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://game/training/training_match.gd" id="1_training"]
+[ext_resource type="PackedScene" path="res://game/match_view.tscn" id="2_view"]
+[ext_resource type="Script" path="res://game/training/training_panel.gd" id="3_panel"]
+
+[node name="TrainingMatch" type="Node"]
+script = ExtResource("1_training")
+
+[node name="MatchView" parent="." instance=ExtResource("2_view")]
+
+[node name="TrainingPanel" type="CanvasLayer" parent="."]
+script = ExtResource("3_panel")

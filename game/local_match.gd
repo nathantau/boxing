@@ -1,3 +1,4 @@
+class_name LocalMatch
 extends Node
 ## Offline 1v1 on one machine: two local input sets (or the AI) drive the same Sim the online
 ## game uses. The sim runs at a fixed 60 Hz from an integer microsecond accumulator,
@@ -15,17 +16,20 @@ var state: MatchState
 var _players: Array[Array] = [[], []]
 ## AI level per player, or -1 for human control.
 var _ai_levels := [-1, -1]
+## 1.0 = real time; training mode slows it down.
+var time_scale := 1.0
+## While paused, step_once() advances exactly one tick.
+var paused := false
 ## Elapsed time scaled by the tick rate, in microseconds; one tick per USEC.
 var _acc := 0
 var _last_usec := 0
+var _step_requested := false
 
 
 func _ready() -> void:
-	state = MatchState.create(moves)
+	state = _new_state()
 	_view.moves = moves
-	var ai_vs_ai := "--ai-vs-ai" in OS.get_cmdline_user_args()
-	_set_control(0, AISource.Level.HARD if ai_vs_ai else -1)
-	_set_control(1, Game.p2_control)
+	_setup_players()
 	_view.set_viewer(0)
 	_view.menu_pressed.connect(Game.goto.bind(Game.MENU))
 	_view.results.menu_pressed.connect(Game.goto.bind(Game.MENU))
@@ -59,7 +63,11 @@ func _process(_delta: float) -> void:
 			source.sample()
 
 	var now := Time.get_ticks_usec()
-	_acc += (now - _last_usec) * Sim.TICK_RATE
+	if not paused:
+		_acc += int((now - _last_usec) * Sim.TICK_RATE * time_scale)
+	elif _step_requested:
+		_acc = USEC
+	_step_requested = false
 	_last_usec = now
 	var ticks := 0
 	while _acc >= USEC and ticks < MAX_TICKS_PER_FRAME:
@@ -67,6 +75,7 @@ func _process(_delta: float) -> void:
 			for source: InputSource in sources:
 				source.observe(state)
 		Sim.step(state, _consume(0), _consume(1), moves)
+		_after_step()
 		_acc -= USEC
 		ticks += 1
 	if ticks == MAX_TICKS_PER_FRAME:
@@ -76,9 +85,28 @@ func _process(_delta: float) -> void:
 	_view.debug_label.text = _debug_text()
 
 
+func step_once() -> void:
+	_step_requested = true
+
+
 func _restart() -> void:
-	state = MatchState.create(moves)
+	state = _new_state()
 	_view.fx.reset()
+
+
+## Overridable hooks (training mode uses them).
+func _new_state() -> MatchState:
+	return MatchState.create(moves)
+
+
+func _setup_players() -> void:
+	var ai_vs_ai := "--ai-vs-ai" in OS.get_cmdline_user_args()
+	_set_control(0, AISource.Level.HARD if ai_vs_ai else -1)
+	_set_control(1, Game.p2_control)
+
+
+func _after_step() -> void:
+	pass
 
 
 ## level: an AISource.Level, or -1 for human (keyboard + gamepad, plus touch for P1).

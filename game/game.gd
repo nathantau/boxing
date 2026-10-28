@@ -4,6 +4,7 @@ extends Node
 const MENU := "res://ui/main_menu.tscn"
 const LOCAL_MATCH := "res://game/local_match.tscn"
 const ONLINE_MATCH := "res://game/online_match.tscn"
+const TRAINING := "res://game/training/training_match.tscn"
 
 ## P2 in the next local match: an AISource.Level, or -1 for a second human on this device.
 var p2_control: int = AISource.Level.NORMAL
