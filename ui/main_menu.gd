@@ -14,6 +14,10 @@ extends Control
 @onready var _join_button: Button = %JoinButton
 
 
+const DETERMINISM_REQUEST := "user://determinism_check.request"
+const DETERMINISM_RESULT := "user://determinism_result.txt"
+
+
 func _ready() -> void:
 	for level_name: String in AISource.LEVEL_NAMES:
 		_difficulty.add_item(level_name.capitalize())
@@ -22,6 +26,7 @@ func _ready() -> void:
 
 	%FightCPU.pressed.connect(_on_fight_cpu)
 	%Training.pressed.connect(Game.goto.bind(Game.TRAINING))
+	%DeterminismCheck.pressed.connect(_on_determinism_check)
 	_two_players.pressed.connect(_on_two_players)
 	%HostGame.pressed.connect(_on_host)
 	%JoinGame.pressed.connect(_show.bind(_join))
@@ -40,9 +45,18 @@ func _ready() -> void:
 	Net.end_reason = ""
 	_show(_main)
 
+	# Devices that don't take command-line arguments (iOS): drop this file in the app's data folder
+	# to run the determinism check at launch; the result is written next to it.
+	if FileAccess.file_exists(DETERMINISM_REQUEST):
+		DirAccess.remove_absolute(DETERMINISM_REQUEST)
+		_on_determinism_check.call_deferred()
+
 	# Testing shortcuts: `-- --host` or `-- --join=ADDRESS` press the buttons for you.
 	for arg in OS.get_cmdline_user_args():
-		if arg == "--host":
+		if arg == "--determinism-check":
+			print("DETERMINISM ", DeterminismCheck.describe(DeterminismCheck.run(preload("res://sim/moves.tres"))))
+			get_tree().quit()
+		elif arg == "--host":
 			_on_host.call_deferred()
 		elif arg.begins_with("--join="):
 			_show(_join)
@@ -60,6 +74,17 @@ func _show(panel: Control) -> void:
 
 func _on_match_ready(_start_tick: int, _state: PackedInt64Array) -> void:
 	Game.goto(Game.ONLINE_MATCH)
+
+
+func _on_determinism_check() -> void:
+	_message.text = "Running five minutes of simulated fighting…"
+	await get_tree().process_frame
+	await get_tree().process_frame
+	var result := DeterminismCheck.run(preload("res://sim/moves.tres"))
+	_message.text = "Determinism: %s\nEvery device on this build must show the same numbers." % DeterminismCheck.describe(result)
+	var out := FileAccess.open(DETERMINISM_RESULT, FileAccess.WRITE)
+	if out:
+		out.store_line(DeterminismCheck.describe(result))
 
 
 func _on_fight_cpu() -> void:

@@ -94,6 +94,13 @@ unique_name_in_owner = true
 layout_mode = 2
 text = "Join a LAN game"
 
+[node name="DeterminismCheck" type="Button" parent="SafeMargin/Center/Column/MainPanel"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+text = "Check determinism"
+flat = true
+
 [node name="HostPanel" type="VBoxContainer" parent="SafeMargin/Center/Column"]
 unique_name_in_owner = true
 visible = false
