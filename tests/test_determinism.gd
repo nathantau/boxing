@@ -31,9 +31,15 @@ static func replay(inputs: PackedInt64Array, moves: MoveSet) -> PackedInt64Array
 	var hashes := PackedInt64Array()
 	hashes.resize(inputs.size() / 2)
 	for t in hashes.size():
+		s = _rematch_if_over(s, moves)
 		Sim.step(s, inputs[t * 2], inputs[t * 2 + 1], moves)
 		hashes[t] = s.state_hash()
 	return hashes
+
+
+## Keeps long logs exercising combat: a finished match is replaced by a fresh one.
+static func _rematch_if_over(s: MatchState, moves: MoveSet) -> MatchState:
+	return MatchState.create(moves) if s.phase == MatchState.Phase.MATCH_OVER else s
 
 
 func test_replay_is_identical() -> void:
@@ -55,6 +61,9 @@ func test_log_actually_fights() -> void:
 	var hits := 0
 	var last_health := [moves.max_health, moves.max_health]
 	for t in TICKS:
+		if s.phase == MatchState.Phase.MATCH_OVER:
+			s = MatchState.create(moves)
+			last_health = [moves.max_health, moves.max_health]
 		Sim.step(s, inputs[t * 2], inputs[t * 2 + 1], moves)
 		for i in 2:
 			if s.fighters[i].health < last_health[i]:
