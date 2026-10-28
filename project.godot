@@ -1,0 +1,41 @@
+; Engine configuration file.
+; Edited by hand as well as by the editor. Keep netfox autoload paths as res:// (not uid://):
+; with uid:// paths a fresh import on Godot 4.6+ fails to compile them (netfox PR #659).
+
+config_version=5
+
+[application]
+
+config/name="Boxing"
+run/main_scene="res://game/local_match.tscn"
+config/features=PackedStringArray("4.7", "Mobile")
+
+[autoload]
+
+NetworkTime="*res://addons/netfox/network-time.gd"
+NetworkTimeSynchronizer="*res://addons/netfox/network-time-synchronizer.gd"
+NetworkRollback="*res://addons/netfox/rollback/network-rollback.gd"
+NetworkEvents="*res://addons/netfox/network-events.gd"
+NetworkPerformance="*res://addons/netfox/network-performance.gd"
+
+[display]
+
+window/size/viewport_width=1280
+window/size/viewport_height=720
+window/stretch/mode="canvas_items"
+window/stretch/aspect="expand"
+window/handheld/orientation=4
+
+[editor_plugins]
+
+enabled=PackedStringArray("res://addons/gut/plugin.cfg", "res://addons/netfox.internals/plugin.cfg", "res://addons/netfox/plugin.cfg")
+
+[netfox]
+
+time/tickrate=60
+rollback/history_limit=64
+
+[rendering]
+
+renderer/rendering_method="mobile"
+renderer/rendering_method.mobile="mobile"

@@ -1,0 +1,40 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://game/presentation/boxer_view.gd" id="1_view"]
+
+[sub_resource type="CapsuleMesh" id="torso"]
+radius = 0.28
+height = 1.4
+
+[sub_resource type="SphereMesh" id="head"]
+radius = 0.17
+height = 0.34
+
+[sub_resource type="StandardMaterial3D" id="glove_mat"]
+albedo_color = Color(0.75, 0.1, 0.1, 1)
+
+[sub_resource type="SphereMesh" id="glove"]
+material = SubResource("glove_mat")
+radius = 0.11
+height = 0.22
+
+[node name="Boxer" type="Node3D"]
+script = ExtResource("1_view")
+
+[node name="Body" type="Node3D" parent="."]
+
+[node name="Torso" type="MeshInstance3D" parent="Body"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.8, 0)
+mesh = SubResource("torso")
+
+[node name="Head" type="MeshInstance3D" parent="Body"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.7, 0)
+mesh = SubResource("head")
+
+[node name="GloveL" type="MeshInstance3D" parent="Body"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.22, 1.35, -0.3)
+mesh = SubResource("glove")
+
+[node name="GloveR" type="MeshInstance3D" parent="Body"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.22, 1.35, -0.3)
+mesh = SubResource("glove")

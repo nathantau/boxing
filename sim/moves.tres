@@ -1,0 +1,77 @@
+[gd_resource type="Resource" script_class="MoveSet" format=3]
+
+[ext_resource type="Script" path="res://sim/move_set.gd" id="1_set"]
+[ext_resource type="Script" path="res://sim/move_data.gd" id="2_move"]
+
+[sub_resource type="Resource" id="jab"]
+script = ExtResource("2_move")
+startup = 5
+active = 3
+recovery = 10
+damage = 30
+chip_damage = 3
+hitstun = 14
+blockstun = 8
+dodged_by = 96
+dodge_punish_damage = 0
+
+[sub_resource type="Resource" id="hook_l"]
+script = ExtResource("2_move")
+startup = 10
+active = 4
+recovery = 16
+damage = 70
+chip_damage = 8
+hitstun = 20
+blockstun = 12
+dodged_by = 32
+dodge_punish_damage = 0
+
+[sub_resource type="Resource" id="hook_r"]
+script = ExtResource("2_move")
+startup = 10
+active = 4
+recovery = 16
+damage = 70
+chip_damage = 8
+hitstun = 20
+blockstun = 12
+dodged_by = 64
+dodge_punish_damage = 0
+
+[sub_resource type="Resource" id="uppercut"]
+script = ExtResource("2_move")
+startup = 16
+active = 6
+recovery = 24
+damage = 120
+chip_damage = 15
+hitstun = 26
+blockstun = 16
+dodged_by = 96
+dodge_punish_damage = 60
+
+[sub_resource type="Resource" id="dodge_l"]
+script = ExtResource("2_move")
+startup = 3
+active = 14
+recovery = 10
+
+[sub_resource type="Resource" id="dodge_r"]
+script = ExtResource("2_move")
+startup = 3
+active = 14
+recovery = 10
+
+[resource]
+script = ExtResource("1_set")
+max_health = 1000
+block_startup = 2
+input_buffer = 8
+ko_reset_ticks = 180
+jab = SubResource("jab")
+hook_l = SubResource("hook_l")
+hook_r = SubResource("hook_r")
+uppercut = SubResource("uppercut")
+dodge_l = SubResource("dodge_l")
+dodge_r = SubResource("dodge_r")

@@ -1,0 +1,54 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://game/local_match.gd" id="1_match"]
+[ext_resource type="PackedScene" path="res://game/presentation/boxer.tscn" id="2_boxer"]
+[ext_resource type="Script" path="res://game/presentation/camera_rig.gd" id="3_camera"]
+
+[sub_resource type="Environment" id="env"]
+background_mode = 1
+background_color = Color(0.08, 0.08, 0.1, 1)
+ambient_light_source = 2
+ambient_light_color = Color(0.55, 0.55, 0.6, 1)
+ambient_light_energy = 0.6
+
+[sub_resource type="PlaneMesh" id="floor_mesh"]
+size = Vector2(7, 7)
+
+[sub_resource type="StandardMaterial3D" id="floor_mat"]
+albedo_color = Color(0.32, 0.3, 0.28, 1)
+
+[sub_resource type="SystemFont" id="mono"]
+font_names = PackedStringArray("Menlo", "Monospace")
+
+[node name="LocalMatch" type="Node3D"]
+script = ExtResource("1_match")
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("env")
+
+[node name="Sun" type="DirectionalLight3D" parent="."]
+transform = Transform3D(0.866, -0.25, 0.433, 0, 0.866, 0.5, -0.5, -0.433, 0.75, 0, 5, 0)
+
+[node name="Floor" type="MeshInstance3D" parent="."]
+mesh = SubResource("floor_mesh")
+surface_material_override/0 = SubResource("floor_mat")
+
+[node name="BoxerA" parent="." instance=ExtResource("2_boxer")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1.1)
+color = Color(0.2, 0.4, 0.9, 1)
+
+[node name="BoxerB" parent="." instance=ExtResource("2_boxer")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 0, 0, -1.1)
+color = Color(0.9, 0.55, 0.15, 1)
+
+[node name="Camera" type="Camera3D" parent="."]
+fov = 60.0
+script = ExtResource("3_camera")
+
+[node name="DebugHUD" type="CanvasLayer" parent="."]
+
+[node name="Label" type="Label" parent="DebugHUD"]
+offset_left = 16.0
+offset_top = 12.0
+theme_override_fonts/font = SubResource("mono")
+theme_override_font_sizes/font_size = 15
