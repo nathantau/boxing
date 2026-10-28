@@ -110,6 +110,7 @@ func _debug_text() -> String:
 	var lines := PackedStringArray([
 		"tick %d   fps %d   hash %08x" % [state.tick, Engine.get_frames_per_second(), state.state_hash()],
 	])
+	lines.append(_view.perf_line())
 	lines.append_array(_view.fighter_debug_lines(state, [_control_name(0), _control_name(1)]))
 	if OS.has_feature("mobile"):
 		return "\n".join(lines)

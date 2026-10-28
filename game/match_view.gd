@@ -25,6 +25,14 @@ var moves: MoveSet:
 var viewer := 0
 
 var _menu_button: Button
+## Performance readout: smoothed frame time, worst frame in the last few seconds, and average
+## fps per minute (a falling per-minute average over a long session means thermal throttling).
+var _frame_ms := 16.7
+var _worst_ms := 0.0
+var _worst_window := 0.0
+var _minute_frames := 0
+var _minute_time := 0.0
+var _minute_fps: PackedFloat32Array = []
 
 
 func _ready() -> void:
@@ -39,6 +47,33 @@ func _ready() -> void:
 	$HUDLayer.add_child(_menu_button)
 	get_viewport().size_changed.connect(_place_debug)
 	_place_debug()
+
+
+func _process(delta: float) -> void:
+	var ms := delta * 1000.0
+	_frame_ms = lerpf(_frame_ms, ms, 0.05)
+	_worst_window += delta
+	if _worst_window > 5.0:
+		_worst_window = 0.0
+		_worst_ms = 0.0
+	_worst_ms = maxf(_worst_ms, ms)
+	_minute_frames += 1
+	_minute_time += delta
+	if _minute_time >= 60.0:
+		_minute_fps.append(_minute_frames / _minute_time)
+		_minute_frames = 0
+		_minute_time = 0.0
+
+
+func perf_line() -> String:
+	var per_minute := PackedStringArray()
+	for fps in _minute_fps.slice(-6):
+		per_minute.append("%d" % roundi(fps))
+	return "frame %.1f ms (worst %.0f)  draws %d  tris %dk  fps/min [%s]" % [
+		_frame_ms, _worst_ms,
+		Performance.get_monitor(Performance.RENDER_TOTAL_DRAW_CALLS_IN_FRAME),
+		Performance.get_monitor(Performance.RENDER_TOTAL_PRIMITIVES_IN_FRAME) / 1000.0,
+		" ".join(per_minute)]
 
 
 func set_viewer(player: int) -> void:

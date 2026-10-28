@@ -1,0 +1,204 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://game/presentation/arena.gd" id="1_arena"]
+
+[sub_resource type="Environment" id="env"]
+background_mode = 1
+background_color = Color(0.03, 0.03, 0.045, 1)
+ambient_light_source = 2
+ambient_light_color = Color(0.5, 0.52, 0.6, 1)
+ambient_light_energy = 0.35
+tonemap_mode = 2
+
+[sub_resource type="BoxMesh" id="canvas_mesh"]
+size = Vector3(8.40, 0.2, 8.40)
+add_uv2 = true
+
+[sub_resource type="StandardMaterial3D" id="canvas_mat"]
+albedo_color = Color(0.4, 0.45, 0.55, 1)
+roughness = 0.9
+
+[sub_resource type="BoxMesh" id="apron_mesh"]
+size = Vector3(8.80, 1.0, 8.80)
+add_uv2 = true
+
+[sub_resource type="StandardMaterial3D" id="apron_mat"]
+albedo_color = Color(0.08, 0.1, 0.22, 1)
+
+[sub_resource type="PlaneMesh" id="floor_mesh"]
+size = Vector2(40, 40)
+add_uv2 = true
+
+[sub_resource type="StandardMaterial3D" id="floor_mat"]
+albedo_color = Color(0.07, 0.07, 0.08, 1)
+
+[sub_resource type="CylinderMesh" id="post_mesh"]
+top_radius = 0.09
+bottom_radius = 0.09
+height = 1.5
+radial_segments = 12
+rings = 1
+add_uv2 = true
+
+[sub_resource type="StandardMaterial3D" id="post_red"]
+albedo_color = Color(0.75, 0.1, 0.1, 1)
+
+[sub_resource type="StandardMaterial3D" id="post_blue"]
+albedo_color = Color(0.12, 0.25, 0.75, 1)
+
+[sub_resource type="StandardMaterial3D" id="post_white"]
+albedo_color = Color(0.85, 0.85, 0.85, 1)
+
+[sub_resource type="CylinderMesh" id="rope_mesh"]
+top_radius = 0.025
+bottom_radius = 0.025
+height = 8.00
+radial_segments = 6
+rings = 1
+add_uv2 = true
+
+[sub_resource type="StandardMaterial3D" id="rope_mat"]
+albedo_color = Color(0.9, 0.9, 0.92, 1)
+
+[node name="Arena" type="Node3D"]
+script = ExtResource("1_arena")
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("env")
+
+[node name="Sun" type="DirectionalLight3D" parent="."]
+transform = Transform3D(0.866, -0.25, 0.433, 0, 0.866, 0.5, -0.5, -0.433, 0.75, 0, 6, 0)
+light_energy = 1.1
+shadow_enabled = true
+directional_shadow_mode = 0
+directional_shadow_max_distance = 12.0
+
+[node name="RedCorner" type="OmniLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.0, 2.2, -4.0)
+light_color = Color(1, 0.35, 0.3, 1)
+light_energy = 1.5
+light_bake_mode = 1
+omni_range = 6.0
+
+[node name="BlueCorner" type="OmniLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.0, 2.2, 4.0)
+light_color = Color(0.35, 0.5, 1, 1)
+light_energy = 1.5
+light_bake_mode = 1
+omni_range = 6.0
+
+[node name="LightmapGI" type="LightmapGI" parent="."]
+quality = 1
+max_texture_size = 2048
+generate_probes_subdiv = 1
+
+[node name="Canvas" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.1, 0)
+mesh = SubResource("canvas_mesh")
+surface_material_override/0 = SubResource("canvas_mat")
+
+[node name="Apron" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.7, 0)
+mesh = SubResource("apron_mesh")
+surface_material_override/0 = SubResource("apron_mat")
+
+[node name="Floor" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1.2, 0)
+mesh = SubResource("floor_mesh")
+surface_material_override/0 = SubResource("floor_mat")
+
+[node name="PostRed" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.0, 0.75, -4.0)
+cast_shadow = 0
+mesh = SubResource("post_mesh")
+surface_material_override/0 = SubResource("post_red")
+
+[node name="PostBlue" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.0, 0.75, 4.0)
+cast_shadow = 0
+mesh = SubResource("post_mesh")
+surface_material_override/0 = SubResource("post_blue")
+
+[node name="PostWhite1" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.0, 0.75, 4.0)
+cast_shadow = 0
+mesh = SubResource("post_mesh")
+surface_material_override/0 = SubResource("post_white")
+
+[node name="PostWhite2" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.0, 0.75, -4.0)
+cast_shadow = 0
+mesh = SubResource("post_mesh")
+surface_material_override/0 = SubResource("post_white")
+
+[node name="Rope0" type="MeshInstance3D" parent="."]
+transform = Transform3D(0, -1, 0, 1, 0, 0, 0, 0, 1, 0, 0.45, 4.0)
+cast_shadow = 0
+mesh = SubResource("rope_mesh")
+surface_material_override/0 = SubResource("rope_mat")
+
+[node name="Rope1" type="MeshInstance3D" parent="."]
+transform = Transform3D(0, -1, 0, 1, 0, 0, 0, 0, 1, 0, 0.45, -4.0)
+cast_shadow = 0
+mesh = SubResource("rope_mesh")
+surface_material_override/0 = SubResource("rope_mat")
+
+[node name="Rope2" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0, -1, 0, 1, 0, 4.0, 0.45, 0)
+cast_shadow = 0
+mesh = SubResource("rope_mesh")
+surface_material_override/0 = SubResource("rope_mat")
+
+[node name="Rope3" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0, -1, 0, 1, 0, -4.0, 0.45, 0)
+cast_shadow = 0
+mesh = SubResource("rope_mesh")
+surface_material_override/0 = SubResource("rope_mat")
+
+[node name="Rope4" type="MeshInstance3D" parent="."]
+transform = Transform3D(0, -1, 0, 1, 0, 0, 0, 0, 1, 0, 0.8, 4.0)
+cast_shadow = 0
+mesh = SubResource("rope_mesh")
+surface_material_override/0 = SubResource("rope_mat")
+
+[node name="Rope5" type="MeshInstance3D" parent="."]
+transform = Transform3D(0, -1, 0, 1, 0, 0, 0, 0, 1, 0, 0.8, -4.0)
+cast_shadow = 0
+mesh = SubResource("rope_mesh")
+surface_material_override/0 = SubResource("rope_mat")
+
+[node name="Rope6" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0, -1, 0, 1, 0, 4.0, 0.8, 0)
+cast_shadow = 0
+mesh = SubResource("rope_mesh")
+surface_material_override/0 = SubResource("rope_mat")
+
+[node name="Rope7" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0, -1, 0, 1, 0, -4.0, 0.8, 0)
+cast_shadow = 0
+mesh = SubResource("rope_mesh")
+surface_material_override/0 = SubResource("rope_mat")
+
+[node name="Rope8" type="MeshInstance3D" parent="."]
+transform = Transform3D(0, -1, 0, 1, 0, 0, 0, 0, 1, 0, 1.15, 4.0)
+cast_shadow = 0
+mesh = SubResource("rope_mesh")
+surface_material_override/0 = SubResource("rope_mat")
+
+[node name="Rope9" type="MeshInstance3D" parent="."]
+transform = Transform3D(0, -1, 0, 1, 0, 0, 0, 0, 1, 0, 1.15, -4.0)
+cast_shadow = 0
+mesh = SubResource("rope_mesh")
+surface_material_override/0 = SubResource("rope_mat")
+
+[node name="Rope10" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0, -1, 0, 1, 0, 4.0, 1.15, 0)
+cast_shadow = 0
+mesh = SubResource("rope_mesh")
+surface_material_override/0 = SubResource("rope_mat")
+
+[node name="Rope11" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0, -1, 0, 1, 0, -4.0, 1.15, 0)
+cast_shadow = 0
+mesh = SubResource("rope_mesh")
+surface_material_override/0 = SubResource("rope_mat")

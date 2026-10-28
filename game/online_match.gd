@@ -222,6 +222,7 @@ func _debug_text() -> String:
 			s.tick, Engine.get_frames_per_second(), "%d ms" % rtt_ms if rtt_ms >= 0.0 else "-",
 			session.rollbacks, session.last_rollback_depth, session.stalls, session.desyncs],
 	])
+	lines.append(_view.perf_line())
 	lines.append_array(_view.fighter_debug_lines(s, ["you" if Net.local_player == 0 else "opponent", "you" if Net.local_player == 1 else "opponent"]))
 	if not OS.has_feature("mobile"):
 		lines.append("F2 network overlay   F3 hide this   Esc leave")

@@ -7,19 +7,7 @@
 [ext_resource type="Script" path="res://game/presentation/hud.gd" id="5_hud"]
 [ext_resource type="Script" path="res://ui/results_panel.gd" id="6_results"]
 [ext_resource type="Script" path="res://game/presentation/match_fx.gd" id="7_fx"]
-
-[sub_resource type="Environment" id="env"]
-background_mode = 1
-background_color = Color(0.08, 0.08, 0.1, 1)
-ambient_light_source = 2
-ambient_light_color = Color(0.55, 0.55, 0.6, 1)
-ambient_light_energy = 0.6
-
-[sub_resource type="PlaneMesh" id="floor_mesh"]
-size = Vector2(7, 7)
-
-[sub_resource type="StandardMaterial3D" id="floor_mat"]
-albedo_color = Color(0.32, 0.3, 0.28, 1)
+[ext_resource type="PackedScene" path="res://game/presentation/arena.tscn" id="8_arena"]
 
 [sub_resource type="SystemFont" id="mono"]
 font_names = PackedStringArray("Menlo", "Monospace")
@@ -27,15 +15,7 @@ font_names = PackedStringArray("Menlo", "Monospace")
 [node name="MatchView" type="Node3D"]
 script = ExtResource("1_view")
 
-[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
-environment = SubResource("env")
-
-[node name="Sun" type="DirectionalLight3D" parent="."]
-transform = Transform3D(0.866, -0.25, 0.433, 0, 0.866, 0.5, -0.5, -0.433, 0.75, 0, 5, 0)
-
-[node name="Floor" type="MeshInstance3D" parent="."]
-mesh = SubResource("floor_mesh")
-surface_material_override/0 = SubResource("floor_mat")
+[node name="Arena" parent="." instance=ExtResource("8_arena")]
 
 [node name="BoxerA" parent="." instance=ExtResource("2_boxer")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1.1)
