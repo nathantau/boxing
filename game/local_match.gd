@@ -29,7 +29,7 @@ func _ready() -> void:
 	_view.set_viewer(0)
 	_view.menu_pressed.connect(Game.goto.bind(Game.MENU))
 	_view.results.menu_pressed.connect(Game.goto.bind(Game.MENU))
-	_view.results.rematch_pressed.connect(func() -> void: state = MatchState.create(moves))
+	_view.results.rematch_pressed.connect(_restart)
 	_last_usec = Time.get_ticks_usec()
 
 
@@ -40,7 +40,7 @@ func _unhandled_input(event: InputEvent) -> void:
 			KEY_C:
 				_view.set_viewer(1 - _view.viewer)
 			KEY_R:
-				state = MatchState.create(moves)
+				_restart()
 			KEY_ESCAPE:
 				Game.goto(Game.MENU)
 			KEY_T:
@@ -74,6 +74,11 @@ func _process(_delta: float) -> void:
 
 	_view.show_state(state)
 	_view.debug_label.text = _debug_text()
+
+
+func _restart() -> void:
+	state = MatchState.create(moves)
+	_view.fx.reset()
 
 
 ## level: an AISource.Level, or -1 for human (keyboard + gamepad, plus touch for P1).

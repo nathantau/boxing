@@ -1,7 +1,9 @@
 class_name BoxerView
 extends Node3D
-## Placeholder capsule boxer. The pose is a pure function of the sim state, so it is
-## correct on the next frame after any rollback. Local forward is -Z and local left is -X.
+## A boxer on screen. Uses the Mixamo character in res://art/boxer/ when it's there
+## (CharacterRig), otherwise a capsule placeholder. Either way the pose is a pure function of
+## the sim state, so it is correct on the next frame after any rollback.
+## Local forward is -Z and local left is -X.
 
 const GUARD_L := Vector3(-0.22, 1.35, -0.3)
 const GUARD_R := Vector3(0.22, 1.35, -0.3)
@@ -17,6 +19,8 @@ const FALL_TICKS := 20.0
 const RISE_TICKS := 30.0
 
 @export var color: Color = Color(0.2, 0.4, 0.9)
+## Model to use from res://art/boxer/ (without extension); falls back to "boxer", then capsules.
+@export var model_file := "boxer"
 
 @onready var _body: Node3D = $Body
 @onready var _glove_l: Node3D = $Body/GloveL
@@ -24,15 +28,41 @@ const RISE_TICKS := 30.0
 @onready var _body_mesh: MeshInstance3D = $Body/Torso
 
 var _material := StandardMaterial3D.new()
+var _rig: CharacterRig
 
 
 func _ready() -> void:
 	_material.albedo_color = color
 	for mesh: MeshInstance3D in [_body_mesh, $Body/Head as MeshInstance3D]:
 		mesh.material_override = _material
+	var model := CharacterRig.find_model(model_file)
+	if model == "":
+		model = CharacterRig.find_model("boxer")
+	if model != "":
+		var rig := CharacterRig.new()
+		add_child(rig)
+		if rig.setup(model):
+			_rig = rig
+			_body.visible = false  # keep the capsule nodes around as fallback spark anchors
+		else:
+			rig.queue_free()
 
 
-func show_state(f: FighterState, moves: MoveSet) -> void:
+## Where hit sparks go.
+func head_position() -> Vector3:
+	var capsule: Vector3 = $Body/Head.global_position
+	return _rig.head_position(capsule) if _rig else capsule
+
+
+func glove_position() -> Vector3:
+	var capsule := (_glove_l.global_position + _glove_r.global_position) * 0.5
+	return _rig.hand_position(capsule) if _rig else capsule
+
+
+func show_state(f: FighterState, moves: MoveSet, tick := 0) -> void:
+	if _rig:
+		_rig.show_state(f, tick, moves)
+		return
 	var glove_l := GUARD_L
 	var glove_r := GUARD_R
 	var shift := 0.0

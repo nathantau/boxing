@@ -114,6 +114,8 @@ func _on_match_ready(start_tick: int, packed: PackedInt64Array) -> void:
 	_start_tick = start_tick
 	_base_tick = state.tick
 	_last_desyncs = 0
+	if packed.is_empty():
+		_view.fx.reset()  # a fresh match: ticks and rounds start over
 	_source = _make_source()
 	_view.set_viewer(Net.local_player)
 	_view.hud.names[Net.local_player] = "YOU"

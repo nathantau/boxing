@@ -15,6 +15,7 @@ const MOVE_NAMES := ["-", "jab", "hook L", "hook R", "uppercut", "dodge L", "dod
 @onready var results: ResultsPanel = $Results
 @onready var _boxers: Array[BoxerView] = [$BoxerA, $BoxerB]
 @onready var _camera: CameraRig = $Camera
+@onready var fx: MatchFx = $Fx
 
 var moves: MoveSet:
 	set(value):
@@ -27,6 +28,8 @@ var _menu_button: Button
 
 
 func _ready() -> void:
+	fx.boxers = _boxers
+	fx.camera = _camera
 	_menu_button = Button.new()
 	_menu_button.text = "MENU"
 	_menu_button.custom_minimum_size = Vector2(88, 44)
@@ -41,6 +44,7 @@ func _ready() -> void:
 func set_viewer(player: int) -> void:
 	viewer = player
 	hud.viewer = player
+	fx.viewer = player
 	_camera.focus = _boxers[player]
 	_camera.target = _boxers[1 - player]
 	_camera.snap()
@@ -48,8 +52,9 @@ func set_viewer(player: int) -> void:
 
 func show_state(state: MatchState) -> void:
 	for i in 2:
-		_boxers[i].show_state(state.fighters[i], moves)
+		_boxers[i].show_state(state.fighters[i], moves, state.tick)
 	hud.state = state
+	fx.show_state(state, moves)
 	var over := state.phase == MatchState.Phase.MATCH_OVER
 	if over and not results.visible:
 		results.show_result(state, viewer, hud.names)

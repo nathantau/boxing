@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="ClipTimings" format=3]
+
+[ext_resource type="Script" path="res://game/presentation/clip_timings.gd" id="1_timings"]
+
+[resource]
+script = ExtResource("1_timings")
+jab_impact = 0.25
+hook_impact = 0.35
+uppercut_impact = 0.4
+dodge_peak = 0.3
+block_up = 0.2
+parry_impact = 0.15
+get_up_ticks = 60
