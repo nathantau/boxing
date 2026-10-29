@@ -6,16 +6,22 @@
 background_mode = 1
 background_color = Color(0.03, 0.03, 0.045, 1)
 ambient_light_source = 2
-ambient_light_color = Color(0.5, 0.52, 0.6, 1)
-ambient_light_energy = 0.35
+ambient_light_color = Color(0.45, 0.5, 0.65, 1)
+ambient_light_energy = 0.25
 tonemap_mode = 2
+glow_enabled = true
+glow_intensity = 0.6
+glow_bloom = 0.05
+fog_enabled = true
+fog_light_color = Color(0.02, 0.02, 0.035, 1)
+fog_density = 0.035
 
 [sub_resource type="BoxMesh" id="canvas_mesh"]
 size = Vector3(8.40, 0.2, 8.40)
 add_uv2 = true
 
 [sub_resource type="StandardMaterial3D" id="canvas_mat"]
-albedo_color = Color(0.4, 0.45, 0.55, 1)
+albedo_color = Color(0.62, 0.62, 0.6, 1)
 roughness = 0.9
 
 [sub_resource type="BoxMesh" id="apron_mesh"]
@@ -66,31 +72,32 @@ script = ExtResource("1_arena")
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
 environment = SubResource("env")
 
-[node name="Sun" type="DirectionalLight3D" parent="."]
-transform = Transform3D(0.866, -0.25, 0.433, 0, 0.866, 0.5, -0.5, -0.433, 0.75, 0, 6, 0)
-light_energy = 1.1
+[node name="RingLight" type="SpotLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0, 1, 0, -1, 0, 0, 7, 0)
+light_color = Color(1, 0.96, 0.88, 1)
+light_energy = 5.0
 shadow_enabled = true
-directional_shadow_mode = 0
-directional_shadow_max_distance = 12.0
+spot_range = 12.0
+spot_attenuation = 0.5
+spot_angle = 40.0
+spot_angle_attenuation = 0.6
+
+[node name="Fill" type="DirectionalLight3D" parent="."]
+transform = Transform3D(0.866, -0.25, 0.433, 0, 0.866, 0.5, -0.5, -0.433, 0.75, 0, 6, 0)
+light_color = Color(0.6, 0.7, 1, 1)
+light_energy = 0.25
 
 [node name="RedCorner" type="OmniLight3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.0, 2.2, -4.0)
 light_color = Color(1, 0.35, 0.3, 1)
-light_energy = 1.5
-light_bake_mode = 1
-omni_range = 6.0
+light_energy = 0.9
+omni_range = 5.0
 
 [node name="BlueCorner" type="OmniLight3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.0, 2.2, 4.0)
 light_color = Color(0.35, 0.5, 1, 1)
-light_energy = 1.5
-light_bake_mode = 1
-omni_range = 6.0
-
-[node name="LightmapGI" type="LightmapGI" parent="."]
-quality = 1
-max_texture_size = 2048
-generate_probes_subdiv = 1
+light_energy = 0.9
+omni_range = 5.0
 
 [node name="Canvas" type="MeshInstance3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.1, 0)
