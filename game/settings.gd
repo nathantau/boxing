@@ -27,6 +27,9 @@ var show_touch_zones := true:
 	set(v): show_touch_zones = v; _save()
 var show_debug := not OS.has_feature("mobile"):
 	set(v): show_debug = v; _save()
+## Whether the How to Play screen has been shown before the first fight.
+var seen_how_to_play := false:
+	set(v): seen_how_to_play = v; _save()
 
 var _loading := false
 
@@ -36,7 +39,7 @@ func _ready() -> void:
 	if cfg.load(PATH) != OK:
 		return
 	_loading = true
-	for key: String in ["haptics", "input_delay", "swipe_sensitivity", "hooks_follow_fist", "shield_position", "show_touch_zones", "show_debug"]:
+	for key: String in ["haptics", "input_delay", "swipe_sensitivity", "hooks_follow_fist", "shield_position", "show_touch_zones", "show_debug", "seen_how_to_play"]:
 		if cfg.has_section_key(SECTION, key):
 			set(key, cfg.get_value(SECTION, key))
 	_loading = false
@@ -51,6 +54,6 @@ func _save() -> void:
 		return
 	var cfg := ConfigFile.new()
 	cfg.load(PATH)  # keep other sections (e.g. the last joined address)
-	for key: String in ["haptics", "input_delay", "swipe_sensitivity", "hooks_follow_fist", "shield_position", "show_touch_zones", "show_debug"]:
+	for key: String in ["haptics", "input_delay", "swipe_sensitivity", "hooks_follow_fist", "shield_position", "show_touch_zones", "show_debug", "seen_how_to_play"]:
 		cfg.set_value(SECTION, key, get(key))
 	cfg.save(PATH)

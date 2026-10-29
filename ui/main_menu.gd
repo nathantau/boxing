@@ -13,6 +13,7 @@ extends Control
 @onready var _join_status: Label = %JoinStatus
 @onready var _join_button: Button = %JoinButton
 var _settings: SettingsPanel
+var _how_to_play: HowToPlayPanel
 
 
 const DETERMINISM_REQUEST := "user://determinism_check.request"
@@ -33,6 +34,11 @@ func _ready() -> void:
 	_main.get_parent().add_child(_settings)
 	_settings.closed.connect(_show.bind(_main))
 	%SettingsButton.pressed.connect(func() -> void: _show(_settings))
+	_how_to_play = HowToPlayPanel.new()
+	_how_to_play.visible = false
+	_main.get_parent().add_child(_how_to_play)
+	_how_to_play.closed.connect(_show.bind(_main))
+	%HowToPlay.pressed.connect(func() -> void: _show(_how_to_play))
 	_two_players.pressed.connect(_on_two_players)
 	%HostGame.pressed.connect(_on_host)
 	%JoinGame.pressed.connect(_show.bind(_join))
@@ -61,6 +67,8 @@ func _ready() -> void:
 	for arg in OS.get_cmdline_user_args():
 		if arg == "--settings":
 			_show(_settings)
+		elif arg == "--how-to-play":
+			_show(_how_to_play)
 		elif arg == "--determinism-check":
 			print("DETERMINISM ", DeterminismCheck.describe(DeterminismCheck.run(preload("res://sim/moves.tres"))))
 			get_tree().quit()
@@ -73,9 +81,12 @@ func _ready() -> void:
 
 
 func _show(panel: Control) -> void:
-	for p in [_main, _host, _join, _settings]:
+	for p in [_main, _host, _join, _settings, _how_to_play]:
 		if p != null:
 			p.visible = p == panel
+	# The controls screen needs the whole height.
+	for node: Control in [$SafeMargin/Center/Column/Title, $SafeMargin/Center/Column/Tagline]:
+		node.visible = panel != _how_to_play
 	if panel == _main:
 		%FightCPU.grab_focus.call_deferred()  # a highlighted item from the start, for pads and keys too
 	if panel == _join:
@@ -100,6 +111,11 @@ func _on_determinism_check() -> void:
 
 func _on_fight_cpu() -> void:
 	Game.p2_control = _difficulty.selected
+	if not Settings.seen_how_to_play:
+		Settings.seen_how_to_play = true
+		_show(_how_to_play)
+		_how_to_play.open_then(Game.goto.bind(Game.LOCAL_MATCH))
+		return
 	Game.goto(Game.LOCAL_MATCH)
 
 
