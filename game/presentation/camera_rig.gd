@@ -14,6 +14,9 @@ const MAX_SHAKE_ROLL := 0.04
 
 var focus: Node3D
 var target: Node3D
+## 1 at the start of a round's intro, falling to 0 as it ends: blends from a sweeping wide
+## shot around both boxers into the gameplay view. Set from the sim state, so it's rollback-safe.
+var intro := 0.0
 
 var _trauma := 0.0
 var _shake_time := 0.0
@@ -47,8 +50,20 @@ func _process(delta: float) -> void:
 
 
 func _desired_position() -> Vector3:
-	return focus.global_transform * OFFSET
+	var gameplay := focus.global_transform * OFFSET
+	if intro <= 0.0:
+		return gameplay
+	var mid := (focus.global_position + target.global_position) * 0.5
+	var side := focus.global_basis.x
+	var back := focus.global_basis.z
+	var angle := intro * 1.4
+	var wide := mid + (side * cos(angle) + back * sin(angle)) * 4.2 + Vector3.UP * (1.3 + intro * 0.9)
+	return gameplay.lerp(wide, smoothstep(0.0, 0.6, intro))
 
 
 func _look_point() -> Vector3:
-	return target.global_position + Vector3.UP * LOOK_HEIGHT + focus.global_basis.x * LOOK_SIDE
+	var gameplay := target.global_position + Vector3.UP * LOOK_HEIGHT + focus.global_basis.x * LOOK_SIDE
+	if intro <= 0.0:
+		return gameplay
+	var mid := (focus.global_position + target.global_position) * 0.5 + Vector3.UP * 1.2
+	return gameplay.lerp(mid, smoothstep(0.0, 0.6, intro))

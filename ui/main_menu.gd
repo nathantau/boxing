@@ -89,9 +89,28 @@ func _show(panel: Control) -> void:
 		node.visible = panel != _how_to_play
 	if panel == _main:
 		%FightCPU.grab_focus.call_deferred()  # a highlighted item from the start, for pads and keys too
+	if panel != null:
+		_slide_in.call_deferred(panel)
 	if panel == _join:
 		_join_status.text = ""
 		_join_address.grab_focus()
+
+
+## Items fade and slide in one after another.
+func _slide_in(panel: Control) -> void:
+	await get_tree().process_frame  # let the containers lay the items out first
+	var delay := 0.0
+	for child in panel.get_children():
+		var item := child as Control
+		if item == null or not item.visible:
+			continue
+		var x := item.position.x
+		item.modulate.a = 0.0
+		item.position.x = x - 40.0
+		var tween := create_tween().set_parallel().set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+		tween.tween_property(item, "modulate:a", 1.0, 0.3).set_delay(delay)
+		tween.tween_property(item, "position:x", x, 0.35).set_delay(delay)
+		delay += 0.045
 
 
 func _on_match_ready(_start_tick: int, _state: PackedInt64Array) -> void:

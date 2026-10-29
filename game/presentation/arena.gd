@@ -34,8 +34,78 @@ void fragment() {
 """
 
 
+const SHAFT_SHADER := """
+shader_type spatial;
+render_mode unshaded, blend_add, cull_disabled, depth_draw_never, shadows_disabled;
+uniform vec4 color : source_color = vec4(1.0, 0.93, 0.8, 1.0);
+uniform float strength = 0.012;
+void fragment() {
+	// Brightest near the lamp, fading toward the canvas; soft at the cone's silhouette.
+	float edge = pow(abs(dot(NORMAL, VIEW)), 1.5);
+	ALBEDO = color.rgb * strength * edge * (1.0 - UV.y * 0.7);
+}
+"""
+
+
 func _ready() -> void:
 	add_child(_make_crowd())
+	add_child(_make_light_shaft())
+	add_child(_make_dust())
+
+
+## A faint cone of light under the ring lamp, as if the air were a little hazy.
+static func _make_light_shaft() -> MeshInstance3D:
+	var cone := CylinderMesh.new()
+	cone.top_radius = 0.35
+	cone.bottom_radius = 3.2
+	cone.height = 7.0
+	cone.radial_segments = 24
+	cone.rings = 1
+	cone.cap_top = false
+	cone.cap_bottom = false
+	var mat := ShaderMaterial.new()
+	mat.shader = Shader.new()
+	mat.shader.code = SHAFT_SHADER
+	cone.material = mat
+	var node := MeshInstance3D.new()
+	node.name = "LightShaft"
+	node.mesh = cone
+	node.position = Vector3(0, 3.5, 0)
+	node.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	return node
+
+
+## Dust drifting slowly through the light.
+static func _make_dust() -> CPUParticles3D:
+	var p := CPUParticles3D.new()
+	p.name = "Dust"
+	p.amount = 70
+	p.lifetime = 9.0
+	p.preprocess = 9.0
+	p.emission_shape = CPUParticles3D.EMISSION_SHAPE_BOX
+	p.emission_box_extents = Vector3(3.5, 2.5, 3.5)
+	p.position = Vector3(0, 3.0, 0)
+	p.direction = Vector3(0, 1, 0)
+	p.spread = 180.0
+	p.gravity = Vector3.ZERO
+	p.initial_velocity_min = 0.02
+	p.initial_velocity_max = 0.08
+	var mesh := QuadMesh.new()
+	mesh.size = Vector2(0.03, 0.03)
+	var mat := StandardMaterial3D.new()
+	mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	mat.billboard_mode = BaseMaterial3D.BILLBOARD_PARTICLES
+	mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	mat.blend_mode = BaseMaterial3D.BLEND_MODE_ADD
+	mat.vertex_color_use_as_albedo = true
+	mat.albedo_texture = soft_dot()
+	mesh.material = mat
+	p.mesh = mesh
+	var fade := Gradient.new()
+	fade.offsets = PackedFloat32Array([0.0, 0.5, 1.0])
+	fade.colors = PackedColorArray([Color(1, 0.95, 0.85, 0), Color(1, 0.95, 0.85, 0.5), Color(1, 0.95, 0.85, 0)])
+	p.color_ramp = fade
+	return p
 
 
 static func _make_crowd() -> MultiMeshInstance3D:
@@ -91,3 +161,17 @@ static func _person_mesh() -> ArrayMesh:
 	st.append_from(body, 0, Transform3D(Basis(), Vector3(0, 0.45, 0)))
 	st.append_from(head, 0, Transform3D(Basis(), Vector3(0, 1.06, 0)))
 	return st.commit()
+
+
+## A soft round dot, for particles that shouldn't look like squares.
+static func soft_dot() -> GradientTexture2D:
+	var dot := GradientTexture2D.new()
+	dot.width = 32
+	dot.height = 32
+	dot.fill = GradientTexture2D.FILL_RADIAL
+	dot.fill_from = Vector2(0.5, 0.5)
+	dot.fill_to = Vector2(1.0, 0.5)
+	dot.gradient = Gradient.new()
+	dot.gradient.set_color(0, Color.WHITE)
+	dot.gradient.set_color(1, Color(1, 1, 1, 0))
+	return dot

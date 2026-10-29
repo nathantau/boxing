@@ -91,6 +91,8 @@ func show_state(state: MatchState) -> void:
 		_boxers[i].show_state(state.fighters[i], moves, state.tick)
 	hud.state = state
 	fx.show_state(state, moves)
+	var intro := state.phase == MatchState.Phase.INTRO
+	_camera.intro = state.phase_timer / float(moves.intro_ticks) if intro else 0.0
 	var over := state.phase == MatchState.Phase.MATCH_OVER
 	if over and not results.visible:
 		results.show_result(state, viewer, hud.names)

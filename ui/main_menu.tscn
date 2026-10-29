@@ -4,6 +4,10 @@
 [ext_resource type="Script" path="res://ui/safe_margin.gd" id="2_safe"]
 
 [ext_resource type="Script" path="res://ui/menu_backdrop.gd" id="3_backdrop"]
+[ext_resource type="Shader" path="res://ui/title_shine.gdshader" id="4_shine"]
+
+[sub_resource type="ShaderMaterial" id="shine"]
+shader = ExtResource("4_shine")
 
 [sub_resource type="Gradient" id="vignette_gradient"]
 offsets = PackedFloat32Array(0, 0.38, 0.7, 1)
@@ -59,6 +63,7 @@ alignment = 1
 
 [node name="Title" type="Label" parent="SafeMargin/Center/Column"]
 layout_mode = 2
+material = SubResource("shine")
 theme_type_variation = &"TitleLabel"
 text = "COUNTERPUNCH"
 

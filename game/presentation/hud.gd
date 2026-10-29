@@ -34,6 +34,7 @@ var names: PackedStringArray = ["P1", "P2"]
 
 var _safe := Rect2()
 var _font: Font
+var _vignette := _make_vignette()
 var _trail := [1.0, 1.0]
 var _trail_wait := [0.0, 0.0]
 
@@ -48,6 +49,17 @@ func _ready() -> void:
 
 func _layout() -> void:
 	_safe = SafeArea.rect(get_viewport())
+
+
+static func _make_vignette() -> GradientTexture2D:
+	var tex := GradientTexture2D.new()
+	tex.fill = GradientTexture2D.FILL_RADIAL
+	tex.fill_from = Vector2(0.5, 0.5)
+	tex.fill_to = Vector2(1.15, 1.15)
+	tex.gradient = Gradient.new()
+	tex.gradient.offsets = PackedFloat32Array([0.0, 0.55, 1.0])
+	tex.gradient.colors = PackedColorArray([Color(0, 0, 0, 0), Color(0, 0, 0, 0.12), Color(0, 0, 0, 0.6)])
+	return tex
 
 
 ## Height of the bar area, so other UI (the debug text) can sit below it.
@@ -80,6 +92,7 @@ func _unit() -> float:
 
 
 func _draw() -> void:
+	draw_texture_rect(_vignette, get_viewport_rect(), false)
 	if state == null:
 		return
 	var u := _unit()
