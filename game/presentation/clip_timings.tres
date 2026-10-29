@@ -4,10 +4,10 @@
 
 [resource]
 script = ExtResource("1_timings")
-jab_impact = 0.25
-hook_impact = 0.35
-uppercut_impact = 0.4
-dodge_peak = 0.3
-block_up = 0.2
+jab_impact = 0.43
+hook_impact = 0.92
+uppercut_impact = 0.57
+dodge_peak = 0.53
+block_up = 0.63
 parry_impact = 0.15
 get_up_ticks = 60
