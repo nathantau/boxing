@@ -8,9 +8,9 @@ extends Node3D
 const ART_DIR := "res://art/boxer/"
 const ANIM_DIR := "res://art/boxer/anims/"
 const EXTENSIONS := ["fbx", "glb", "gltf"]
-## Mixamo bone names as Godot imports them (the "mixamorig:" prefix may vary per character).
-const HEAD_BONES := ["mixamorig_Head", "mixamorig:Head", "Head"]
-const HAND_BONES := ["mixamorig_RightHand", "mixamorig:RightHand", "RightHand"]
+## Mixamo bone name suffixes; the prefix varies per character ("mixamorig_", "mixamorig6_", ...).
+const HEAD_BONE := "Head"
+const HAND_BONE := "RightHand"
 
 var timings: ClipTimings = preload("res://game/presentation/clip_timings.tres")
 
@@ -71,19 +71,19 @@ func show_state(f: FighterState, tick: int, moves: MoveSet) -> void:
 
 
 func head_position(fallback: Vector3) -> Vector3:
-	return _bone_position(HEAD_BONES, fallback)
+	return _bone_position(HEAD_BONE, fallback)
 
 
 func hand_position(fallback: Vector3) -> Vector3:
-	return _bone_position(HAND_BONES, fallback)
+	return _bone_position(HAND_BONE, fallback)
 
 
-func _bone_position(names: Array, fallback: Vector3) -> Vector3:
+func _bone_position(suffix: String, fallback: Vector3) -> Vector3:
 	if _skeleton == null:
 		return fallback
-	for bone_name: String in names:
-		var idx := _skeleton.find_bone(bone_name)
-		if idx >= 0:
+	for idx in _skeleton.get_bone_count():
+		var bone_name := _skeleton.get_bone_name(idx)
+		if bone_name == suffix or bone_name.ends_with("_" + suffix) or bone_name.ends_with(":" + suffix):
 			return _skeleton.global_transform * _skeleton.get_bone_global_pose(idx).origin
 	return fallback
 
