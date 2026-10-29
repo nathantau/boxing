@@ -76,6 +76,8 @@ func _show(panel: Control) -> void:
 	for p in [_main, _host, _join, _settings]:
 		if p != null:
 			p.visible = p == panel
+	if panel == _main:
+		%FightCPU.grab_focus.call_deferred()  # a highlighted item from the start, for pads and keys too
 	if panel == _join:
 		_join_status.text = ""
 		_join_address.grab_focus()

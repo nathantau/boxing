@@ -17,6 +17,8 @@ const FRAME_COLOR := Color(1, 1, 1, 0.22)
 const TEXT_COLOR := Color(1, 1, 1)
 const OUTLINE_COLOR := Color(0, 0, 0, 0.75)
 const PIP_OFF := Color(1, 1, 1, 0.18)
+const VIEWER_ACCENT := Color(0.8, 0.1, 0.08)
+const OPPONENT_ACCENT := Color(0.15, 0.35, 0.85)
 const LOW_HEALTH := 0.3
 ## The red "damage taken" trail waits this long after a hit, then drains at TRAIL_SPEED per second.
 const TRAIL_HOLD := 0.5
@@ -50,7 +52,7 @@ func _layout() -> void:
 
 ## Height of the bar area, so other UI (the debug text) can sit below it.
 func top_height() -> float:
-	return _unit() * 9.0
+	return _unit() * 11.0
 
 
 func _process(delta: float) -> void:
@@ -115,10 +117,18 @@ func _draw_fighter(index: int, pos: Vector2, width: float, mirrored: bool) -> vo
 	var stamina := clampf(f.stamina / float(moves.max_stamina), 0.0, 1.0)
 	var align := HORIZONTAL_ALIGNMENT_RIGHT if mirrored else HORIZONTAL_ALIGNMENT_LEFT
 
-	var name_pos := pos + Vector2(width if mirrored else 0.0, 0.2 * u)
-	_text(name_pos, names[index].to_upper(), int(2.2 * u), align)
+	# Name plate: a slanted dark tab with a coloured edge, the bar hanging under it.
+	var plate := Rect2(pos + Vector2(0, -0.6 * u), Vector2(width * 0.42, 2.8 * u))
+	if mirrored:
+		plate.position.x = pos.x + width - plate.size.x
+	var accent := VIEWER_ACCENT if index == viewer else OPPONENT_ACCENT
+	_bar(plate, 0.0, 1.0, mirrored, Color(0.14, 0.14, 0.17, 0.95), Color(0.05, 0.05, 0.07, 0.95))
+	_bar_frame(plate, mirrored)
+	_bar(plate, 0.0, 0.1, mirrored, accent.lightened(0.2), accent)
+	var name_pos := Vector2(plate.end.x - 4.0 * u if mirrored else plate.position.x + 4.0 * u, plate.get_center().y)
+	_text(name_pos, names[index].to_upper(), int(2.1 * u), align)
 
-	var health_rect := Rect2(pos + Vector2(0, 1.6 * u), Vector2(width, health_h))
+	var health_rect := Rect2(pos + Vector2(0, 2.6 * u), Vector2(width, health_h))
 	_bar(health_rect, 0.0, 1.0, mirrored, BAR_BACK, BAR_BACK)
 	_bar(health_rect, health, _trail[index], mirrored, TRAIL_COLOR, TRAIL_COLOR.darkened(0.3))
 	var low := health < LOW_HEALTH
@@ -238,6 +248,8 @@ func _draw_banner() -> void:
 			subtitle = _result_text(state.round_winner, "ROUND")
 			age = moves.round_over_ticks - state.phase_timer
 			color = GOLD
+			if title.ends_with("K.O.") and age < 12:
+				draw_rect(get_viewport_rect(), Color(1, 1, 1, 0.55 * (1.0 - age / 12.0)))
 		MatchState.Phase.MATCH_OVER:
 			title = _result_text(state.match_winner, "MATCH")
 			color = GOLD if state.match_winner == viewer else TEXT_COLOR
@@ -248,12 +260,18 @@ func _draw_banner() -> void:
 	var band_h := 13.0 * u if subtitle != "" else 10.0 * u
 	var band_top := center.y - 6.0 * u
 	var clear := Color(0, 0, 0, 0)
-	var dark := Color(0, 0, 0, 0.55)
+	var dark := Color(0, 0, 0, 0.6)
+	var line := Color(GOLD, 0.9)
 	var mid := _safe.get_center().x
+	# The band sweeps out from the centre, trimmed with gold lines.
+	var reach := _safe.size.x * 0.5 * clampf(age / 6.0, 0.15, 1.0)
 	for side: float in [-1.0, 1.0]:
-		var outer := mid + side * _safe.size.x * 0.5
+		var outer := mid + side * reach
 		draw_polygon(PackedVector2Array([Vector2(mid, band_top), Vector2(outer, band_top), Vector2(outer, band_top + band_h), Vector2(mid, band_top + band_h)]),
 			PackedColorArray([dark, clear, clear, dark]))
+		for y: float in [band_top, band_top + band_h]:
+			draw_polygon(PackedVector2Array([Vector2(mid, y - 1.5), Vector2(outer, y - 1.5), Vector2(outer, y + 1.5), Vector2(mid, y + 1.5)]),
+				PackedColorArray([line, Color(line, 0.0), Color(line, 0.0), line]))
 	var pop := 1.0 + 0.5 * maxf(0.0, 1.0 - age / 8.0)
 	_text(center, title, int(8.5 * u * pop), HORIZONTAL_ALIGNMENT_CENTER, color)
 	if subtitle != "":

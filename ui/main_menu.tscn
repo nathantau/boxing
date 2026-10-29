@@ -3,17 +3,16 @@
 [ext_resource type="Script" path="res://ui/main_menu.gd" id="1_menu"]
 [ext_resource type="Script" path="res://ui/safe_margin.gd" id="2_safe"]
 
-[sub_resource type="Gradient" id="bg_gradient"]
-offsets = PackedFloat32Array(0, 0.55, 1)
-colors = PackedColorArray(0.2, 0.07, 0.07, 1, 0.07, 0.06, 0.08, 1, 0.02, 0.02, 0.03, 1)
+[ext_resource type="Script" path="res://ui/menu_backdrop.gd" id="3_backdrop"]
 
-[sub_resource type="GradientTexture2D" id="bg_texture"]
-gradient = SubResource("bg_gradient")
+[sub_resource type="Gradient" id="vignette_gradient"]
+offsets = PackedFloat32Array(0, 0.38, 0.7, 1)
+colors = PackedColorArray(0.02, 0.02, 0.03, 0.96, 0.02, 0.02, 0.03, 0.8, 0.02, 0.02, 0.03, 0.15, 0.02, 0.02, 0.03, 0.35)
+
+[sub_resource type="GradientTexture2D" id="vignette"]
+gradient = SubResource("vignette_gradient")
 width = 256
-height = 256
-fill = 1
-fill_from = Vector2(0.5, 0.35)
-fill_to = Vector2(1.1, 1.1)
+height = 4
 
 [node name="MainMenu" type="Control"]
 layout_mode = 3
@@ -24,14 +23,18 @@ grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_menu")
 
-[node name="Background" type="TextureRect" parent="."]
+[node name="Backdrop" type="Node3D" parent="."]
+script = ExtResource("3_backdrop")
+
+[node name="Vignette" type="TextureRect" parent="."]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-texture = SubResource("bg_texture")
+mouse_filter = 2
+texture = SubResource("vignette")
 expand_mode = 1
 
 [node name="SafeMargin" type="MarginContainer" parent="."]
@@ -43,26 +46,27 @@ grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("2_safe")
 
-[node name="Center" type="CenterContainer" parent="SafeMargin"]
+[node name="Center" type="MarginContainer" parent="SafeMargin"]
 layout_mode = 2
+theme_override_constants/margin_left = 90
 
 [node name="Column" type="VBoxContainer" parent="SafeMargin/Center"]
-custom_minimum_size = Vector2(560, 0)
+custom_minimum_size = Vector2(520, 0)
 layout_mode = 2
+size_flags_horizontal = 0
 theme_override_constants/separation = 10
+alignment = 1
 
 [node name="Title" type="Label" parent="SafeMargin/Center/Column"]
 layout_mode = 2
 theme_type_variation = &"TitleLabel"
-text = "BOXING"
-horizontal_alignment = 1
+text = "COUNTERPUNCH"
 
 [node name="Tagline" type="Label" parent="SafeMargin/Center/Column"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.91, 0.72, 0.29, 0.85)
 theme_override_font_sizes/font_size = 18
-text = "J A B   ·   H O O K   ·   P A R R Y"
-horizontal_alignment = 1
+text = "B L O C K   ·   P A R R Y   ·   P U N I S H"
 
 [node name="Message" type="Label" parent="SafeMargin/Center/Column"]
 unique_name_in_owner = true
@@ -70,13 +74,12 @@ custom_minimum_size = Vector2(560, 0)
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 0.7, 0.3, 1)
 theme_override_font_sizes/font_size = 22
-horizontal_alignment = 1
 autowrap_mode = 3
 
 [node name="MainPanel" type="VBoxContainer" parent="SafeMargin/Center/Column"]
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_constants/separation = 14
+theme_override_constants/separation = 2
 
 [node name="CPURow" type="HBoxContainer" parent="SafeMargin/Center/Column/MainPanel"]
 layout_mode = 2
@@ -85,39 +88,52 @@ theme_override_constants/separation = 12
 [node name="FightCPU" type="Button" parent="SafeMargin/Center/Column/MainPanel/CPURow"]
 unique_name_in_owner = true
 layout_mode = 2
-theme_type_variation = &"PrimaryButton"
-size_flags_horizontal = 3
-text = "Fight the CPU"
+theme_type_variation = &"MenuItem"
+alignment = 0
+size_flags_horizontal = 0
+text = "FIGHT"
 
 [node name="Difficulty" type="OptionButton" parent="SafeMargin/Center/Column/MainPanel/CPURow"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(170, 0)
+custom_minimum_size = Vector2(150, 0)
+size_flags_vertical = 4
+theme_override_font_sizes/font_size = 20
 layout_mode = 2
 
 [node name="Training" type="Button" parent="SafeMargin/Center/Column/MainPanel"]
 unique_name_in_owner = true
 layout_mode = 2
-text = "Training (frame data)"
+theme_type_variation = &"MenuItem"
+alignment = 0
+text = "TRAINING"
 
 [node name="TwoPlayers" type="Button" parent="SafeMargin/Center/Column/MainPanel"]
 unique_name_in_owner = true
 layout_mode = 2
-text = "Two players on this keyboard"
+theme_type_variation = &"MenuItem"
+alignment = 0
+text = "VERSUS  ·  KEYBOARD"
 
 [node name="HostGame" type="Button" parent="SafeMargin/Center/Column/MainPanel"]
 unique_name_in_owner = true
 layout_mode = 2
-text = "Host a LAN game"
+theme_type_variation = &"MenuItem"
+alignment = 0
+text = "HOST MATCH"
 
 [node name="JoinGame" type="Button" parent="SafeMargin/Center/Column/MainPanel"]
 unique_name_in_owner = true
 layout_mode = 2
-text = "Join a LAN game"
+theme_type_variation = &"MenuItem"
+alignment = 0
+text = "JOIN MATCH"
 
 [node name="SettingsButton" type="Button" parent="SafeMargin/Center/Column/MainPanel"]
 unique_name_in_owner = true
 layout_mode = 2
-text = "Settings"
+theme_type_variation = &"MenuItem"
+alignment = 0
+text = "SETTINGS"
 
 [node name="DeterminismCheck" type="Button" parent="SafeMargin/Center/Column/MainPanel"]
 unique_name_in_owner = true
@@ -125,6 +141,7 @@ layout_mode = 2
 theme_override_font_sizes/font_size = 18
 text = "Check determinism"
 flat = true
+alignment = 0
 
 [node name="HostPanel" type="VBoxContainer" parent="SafeMargin/Center/Column"]
 unique_name_in_owner = true
@@ -135,21 +152,18 @@ theme_override_constants/separation = 14
 [node name="HostHint" type="Label" parent="SafeMargin/Center/Column/HostPanel"]
 layout_mode = 2
 text = "On the other device, choose Join and type:"
-horizontal_alignment = 1
 
 [node name="HostAddress" type="Label" parent="SafeMargin/Center/Column/HostPanel"]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_font_sizes/font_size = 60
 text = "192.168.1.20:24680"
-horizontal_alignment = 1
 
 [node name="HostStatus" type="Label" parent="SafeMargin/Center/Column/HostPanel"]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_colors/font_color = Color(0.75, 0.75, 0.8, 1)
 text = "Waiting for your opponent to join…"
-horizontal_alignment = 1
 
 [node name="HostCancel" type="Button" parent="SafeMargin/Center/Column/HostPanel"]
 unique_name_in_owner = true
@@ -165,7 +179,6 @@ theme_override_constants/separation = 14
 [node name="JoinHint" type="Label" parent="SafeMargin/Center/Column/JoinPanel"]
 layout_mode = 2
 text = "Host address (shown on the host's screen):"
-horizontal_alignment = 1
 
 [node name="JoinAddress" type="LineEdit" parent="SafeMargin/Center/Column/JoinPanel"]
 unique_name_in_owner = true
@@ -198,5 +211,4 @@ unique_name_in_owner = true
 custom_minimum_size = Vector2(560, 0)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.75, 0.75, 0.8, 1)
-horizontal_alignment = 1
 autowrap_mode = 3
