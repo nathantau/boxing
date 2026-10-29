@@ -135,12 +135,22 @@ static func _make_spark() -> CPUParticles3D:
 	p.damping_min = 4.0
 	p.damping_max = 6.0
 	var mesh := QuadMesh.new()
-	mesh.size = Vector2(0.04, 0.04)
+	mesh.size = Vector2(0.07, 0.07)
 	var mat := StandardMaterial3D.new()
 	mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
 	mat.billboard_mode = BaseMaterial3D.BILLBOARD_PARTICLES
 	mat.vertex_color_use_as_albedo = true
 	mat.blend_mode = BaseMaterial3D.BLEND_MODE_ADD
+	# Soft round dots instead of hard squares.
+	var dot := GradientTexture2D.new()
+	dot.fill = GradientTexture2D.FILL_RADIAL
+	dot.fill_from = Vector2(0.5, 0.5)
+	dot.fill_to = Vector2(1.0, 0.5)
+	dot.gradient = Gradient.new()
+	dot.gradient.set_color(0, Color.WHITE)
+	dot.gradient.set_color(1, Color(1, 1, 1, 0))
+	mat.albedo_texture = dot
+	mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
 	mesh.material = mat
 	p.mesh = mesh
 	var fade := Gradient.new()

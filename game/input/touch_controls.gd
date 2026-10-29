@@ -38,9 +38,10 @@ const ZONE_BITS := {
 	Zone.SHIELD: InputBits.BLOCK,
 }
 
-const IDLE_COLOR := Color(1, 1, 1, 0.08)
-const HELD_COLOR := Color(1, 1, 1, 0.28)
+const IDLE_COLOR := Color(0, 0, 0, 0.25)
+const HELD_COLOR := Color(0.91, 0.72, 0.29, 0.35)
 const LINE_COLOR := Color(1, 1, 1, 0.35)
+const EDGE_HELD := Color(0.91, 0.72, 0.29, 0.3)
 
 var source := InputSource.new()
 ## Finger index -> Touch.
@@ -187,8 +188,9 @@ func _draw() -> void:
 	var strip := DODGE_STRIP * _safe.size.x
 	var left := Rect2(_safe.position, Vector2(strip, _safe.size.y))
 	var right := Rect2(Vector2(_safe.end.x - strip, _safe.position.y), Vector2(strip, _safe.size.y))
-	_draw_zone(left, source.held & InputBits.DODGE_L, "<")
-	_draw_zone(right, source.held & InputBits.DODGE_R, ">")
+	var both := source.held & InputBits.BLOCK and _touches.size() >= 2
+	_draw_zone(left, source.held & InputBits.DODGE_L or both, -1.0)
+	_draw_zone(right, source.held & InputBits.DODGE_R or both, 1.0)
 
 	var center := _shield_center()
 	var radius := _shield_radius()
@@ -197,13 +199,25 @@ func _draw() -> void:
 	_draw_label(center, "BLOCK")
 
 
-func _draw_zone(rect: Rect2, is_held: int, label: String) -> void:
-	draw_rect(rect, HELD_COLOR if is_held else IDLE_COLOR)
-	_draw_label(rect.get_center(), label)
+## Just a thin inner edge and a chevron; held, it glows in from the screen edge.
+func _draw_zone(rect: Rect2, is_held: bool, side: float) -> void:
+	var outer_x := rect.end.x if side > 0.0 else rect.position.x
+	var inner_x := rect.position.x if side > 0.0 else rect.end.x
+	if is_held:
+		var clear := Color(EDGE_HELD, 0.0)
+		draw_polygon(PackedVector2Array([Vector2(inner_x, rect.position.y), Vector2(outer_x, rect.position.y), Vector2(outer_x, rect.end.y), Vector2(inner_x, rect.end.y)]),
+			PackedColorArray([clear, EDGE_HELD, EDGE_HELD, clear]))
+	var line_top := rect.position.y + rect.size.y * 0.3
+	var line_bottom := rect.position.y + rect.size.y * 0.7
+	draw_line(Vector2(inner_x, line_top), Vector2(inner_x, line_bottom), Color(1, 1, 1, 0.12), 1.5, true)
+	var c := rect.get_center()
+	var h := _safe.size.y * 0.035
+	var chevron := PackedVector2Array([c + Vector2(-side * h * 0.5, -h), c + Vector2(side * h * 0.5, 0), c + Vector2(-side * h * 0.5, h)])
+	draw_polyline(chevron, HELD_COLOR.lightened(0.4) if is_held else LINE_COLOR, 3.0, true)
 
 
 func _draw_label(center: Vector2, text: String) -> void:
-	var font := ThemeDB.fallback_font
+	var font := get_theme_font("font", &"Display")
 	var size := int(_safe.size.y * 0.04)
 	var width := font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, size).x
 	draw_string(font, center + Vector2(-width * 0.5, size * 0.35), text, HORIZONTAL_ALIGNMENT_LEFT, -1, size, LINE_COLOR)
