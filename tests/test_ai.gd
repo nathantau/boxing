@@ -7,7 +7,7 @@ var moves: MoveSet = preload("res://sim/moves.tres")
 ## Throws a punch every `interval` ticks, cycling through the punches. Never defends.
 class PunchBot:
 	extends InputSource
-	const PUNCHES := [InputBits.JAB, InputBits.HOOK_L, InputBits.HOOK_R, InputBits.UPPERCUT]
+	const PUNCHES := [InputBits.JAB, InputBits.CROSS, InputBits.HOOK_L, InputBits.HOOK_R, InputBits.UPPERCUT]
 	var interval := 70
 	var _count := 0
 

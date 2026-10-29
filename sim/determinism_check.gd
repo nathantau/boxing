@@ -21,7 +21,7 @@ static func make_log(ticks: int, rng_seed: int) -> PackedInt64Array:
 		var p := i % 2
 		var roll := (x >> 8) % 100
 		if roll < 6:
-			held[p] = 1 << ((x >> 16) % 7)  # press or start holding one button
+			held[p] = 1 << ((x >> 16) % 8)  # press or start holding one button
 		elif roll < 30:
 			held[p] = 0
 		inputs[i] = held[p]
@@ -56,7 +56,7 @@ static func describe(result: Dictionary) -> String:
 static func fingerprint(moves: MoveSet) -> int:
 	var values := PackedInt64Array()
 	_append_ints(moves, values)
-	for move in [MoveSet.JAB, MoveSet.HOOK_L, MoveSet.HOOK_R, MoveSet.UPPERCUT, MoveSet.DODGE_L, MoveSet.DODGE_R]:
+	for move in [MoveSet.JAB, MoveSet.CROSS, MoveSet.HOOK_L, MoveSet.HOOK_R, MoveSet.UPPERCUT, MoveSet.DODGE_L, MoveSet.DODGE_R]:
 		_append_ints(moves.get_move(move), values)
 	return MatchState.hash_packed(values)
 

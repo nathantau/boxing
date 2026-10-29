@@ -17,6 +17,7 @@ downloading, to get the other side from the same take.
 |-----------------|-------------------------------------------|------------------------------|
 | `idle.fbx`      | boxing idle / fight idle (loop)           | yes                          |
 | `jab.fbx`       | jab / lead jab                            | yes                          |
+| `cross.fbx`     | same jab, **Mirror** on (right hand)      | optional → jab               |
 | `hook_r.fbx`    | hook punch (right hand)                   | yes                          |
 | `hook_l.fbx`    | same hook, **Mirror** on                  | yes                          |
 | `uppercut.fbx`  | uppercut                                  | yes                          |

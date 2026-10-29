@@ -7,7 +7,7 @@ extends Node3D
 signal menu_pressed
 
 const ACTION_NAMES := ["idle", "attack", "block", "dodge", "hitstun", "blockstun", "KO", "parry", "stagger", "down"]
-const MOVE_NAMES := ["-", "jab", "hook L", "hook R", "uppercut", "dodge L", "dodge R"]
+const MOVE_NAMES := ["-", "jab", "hook L", "hook R", "uppercut", "dodge L", "dodge R", "cross"]
 
 @onready var touch: TouchControls = $TouchLayer/TouchControls
 @onready var hud: Hud = $HUDLayer/HUD

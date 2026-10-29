@@ -3,12 +3,12 @@ extends InputSource
 ## Training dummy: stands, blocks, repeats one punch, reacts with a perfect dodge or parry, or
 ## hands control to the hard CPU.
 
-enum Mode { STAND, BLOCK, JAB, HOOK_L, HOOK_R, UPPERCUT, DODGE, PARRY, CPU }
+enum Mode { STAND, BLOCK, JAB, CROSS, HOOK_L, HOOK_R, UPPERCUT, DODGE, PARRY, CPU }
 
-const MODE_NAMES := ["Stand", "Block", "Jab", "Left hook", "Right hook", "Uppercut", "Perfect dodge", "Perfect parry", "CPU (hard)"]
+const MODE_NAMES := ["Stand", "Block", "Jab", "Cross", "Left hook", "Right hook", "Uppercut", "Perfect dodge", "Perfect parry", "CPU (hard)"]
 const PUNCH_BITS := {
 	Mode.JAB: InputBits.JAB, Mode.HOOK_L: InputBits.HOOK_L,
-	Mode.HOOK_R: InputBits.HOOK_R, Mode.UPPERCUT: InputBits.UPPERCUT,
+	Mode.HOOK_R: InputBits.HOOK_R, Mode.CROSS: InputBits.CROSS, Mode.UPPERCUT: InputBits.UPPERCUT,
 }
 ## Repeating punches come out after the dummy has been idle this long.
 const REPEAT_IDLE_TICKS := 40
@@ -43,7 +43,7 @@ func observe(s: MatchState) -> void:
 	match mode:
 		Mode.BLOCK:
 			held = InputBits.BLOCK
-		Mode.JAB, Mode.HOOK_L, Mode.HOOK_R, Mode.UPPERCUT:
+		Mode.JAB, Mode.CROSS, Mode.HOOK_L, Mode.HOOK_R, Mode.UPPERCUT:
 			if me.action == FighterState.IDLE and me.frame == REPEAT_IDLE_TICKS:
 				press(PUNCH_BITS[mode])
 		Mode.DODGE, Mode.PARRY:

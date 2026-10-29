@@ -10,5 +10,6 @@ const UPPERCUT := 1 << 3
 const BLOCK := 1 << 4
 const DODGE_L := 1 << 5
 const DODGE_R := 1 << 6
+const CROSS := 1 << 7
 
-const ALL := JAB | HOOK_L | HOOK_R | UPPERCUT | BLOCK | DODGE_L | DODGE_R
+const ALL := JAB | HOOK_L | HOOK_R | UPPERCUT | BLOCK | DODGE_L | DODGE_R | CROSS

@@ -75,6 +75,9 @@ func show_state(f: FighterState, moves: MoveSet, tick := 0) -> void:
 			match f.move:
 				MoveSet.JAB:
 					glove_l = GUARD_L.lerp(Vector3(-0.08, 1.45, -0.3 - REACH), t)
+				MoveSet.CROSS:
+					glove_r = GUARD_R.lerp(Vector3(0.08, 1.45, -0.3 - REACH), t)
+					lean.z = 0.08 * t
 				MoveSet.HOOK_L:
 					glove_l = _arc(GUARD_L, Vector3(0.1, 1.45, -0.3 - REACH), Vector3(-0.6, 1.45, -0.6), t)
 					lean.z = -0.15 * t

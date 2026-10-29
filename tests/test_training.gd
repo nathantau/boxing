@@ -3,8 +3,8 @@ extends GutTest
 ## labelled correctly, and the dummy's "perfect" defenses really are perfect.
 
 var moves: MoveSet = preload("res://sim/moves.tres")
-const PUNCHES := [MoveSet.JAB, MoveSet.HOOK_L, MoveSet.HOOK_R, MoveSet.UPPERCUT]
-const BITS := { MoveSet.JAB: InputBits.JAB, MoveSet.HOOK_L: InputBits.HOOK_L, MoveSet.HOOK_R: InputBits.HOOK_R, MoveSet.UPPERCUT: InputBits.UPPERCUT }
+const PUNCHES := [MoveSet.JAB, MoveSet.CROSS, MoveSet.HOOK_L, MoveSet.HOOK_R, MoveSet.UPPERCUT]
+const BITS := { MoveSet.JAB: InputBits.JAB, MoveSet.CROSS: InputBits.CROSS, MoveSet.HOOK_L: InputBits.HOOK_L, MoveSet.HOOK_R: InputBits.HOOK_R, MoveSet.UPPERCUT: InputBits.UPPERCUT }
 
 
 func fight() -> MatchState:

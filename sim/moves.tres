@@ -19,6 +19,22 @@ dodge_punish_damage = 0
 parry_window = 3
 parry_stagger = 30
 
+[sub_resource type="Resource" id="cross"]
+script = ExtResource("2_move")
+startup = 8
+active = 3
+recovery = 14
+stamina_cost = 90
+damage = 50
+chip_damage = 5
+block_stamina_damage = 60
+hitstun = 18
+blockstun = 10
+dodged_by = 96
+dodge_punish_damage = 0
+parry_window = 4
+parry_stagger = 35
+
 [sub_resource type="Resource" id="hook_l"]
 script = ExtResource("2_move")
 startup = 10
@@ -103,6 +119,7 @@ rounds_to_win = 2
 intro_ticks = 120
 round_over_ticks = 180
 jab = SubResource("jab")
+cross = SubResource("cross")
 hook_l = SubResource("hook_l")
 hook_r = SubResource("hook_r")
 uppercut = SubResource("uppercut")

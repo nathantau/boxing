@@ -153,6 +153,8 @@ static func _move_from_presses(pressed: int) -> int:
 		return MoveSet.HOOK_L
 	if pressed & InputBits.HOOK_R:
 		return MoveSet.HOOK_R
+	if pressed & InputBits.CROSS:
+		return MoveSet.CROSS
 	if pressed & InputBits.JAB:
 		return MoveSet.JAB
 	return MoveSet.NONE

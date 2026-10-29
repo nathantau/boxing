@@ -4,6 +4,7 @@ extends InputSource
 
 const P1_KEYS := {
 	InputBits.JAB: [KEY_W],
+	InputBits.CROSS: [KEY_F],
 	InputBits.HOOK_L: [KEY_Q],
 	InputBits.HOOK_R: [KEY_E],
 	InputBits.UPPERCUT: [KEY_S],
@@ -14,6 +15,7 @@ const P1_KEYS := {
 
 const P2_KEYS := {
 	InputBits.JAB: [KEY_I],
+	InputBits.CROSS: [KEY_H],
 	InputBits.HOOK_L: [KEY_U],
 	InputBits.HOOK_R: [KEY_O],
 	InputBits.UPPERCUT: [KEY_K],
@@ -24,6 +26,7 @@ const P2_KEYS := {
 
 const PAD_BUTTONS := {
 	InputBits.JAB: [JOY_BUTTON_X],
+	InputBits.CROSS: [JOY_BUTTON_A],
 	InputBits.HOOK_L: [JOY_BUTTON_LEFT_SHOULDER],
 	InputBits.HOOK_R: [JOY_BUTTON_RIGHT_SHOULDER],
 	InputBits.UPPERCUT: [JOY_BUTTON_Y],

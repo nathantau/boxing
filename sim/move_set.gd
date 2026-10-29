@@ -3,7 +3,8 @@ extends Resource
 ## All balance numbers in one place. Edit res://sim/moves.tres (in the inspector or as text) to tune.
 ## Times are 60 Hz ticks.
 
-enum { NONE, JAB, HOOK_L, HOOK_R, UPPERCUT, DODGE_L, DODGE_R }
+## CROSS is last so the older ids (stored in match state) keep their values.
+enum { NONE, JAB, HOOK_L, HOOK_R, UPPERCUT, DODGE_L, DODGE_R, CROSS }
 
 @export var max_health: int = 1000
 ## Ticks after pressing block before it protects.
@@ -45,6 +46,7 @@ enum { NONE, JAB, HOOK_L, HOOK_R, UPPERCUT, DODGE_L, DODGE_R }
 
 @export_group("Moves")
 @export var jab: MoveData
+@export var cross: MoveData
 @export var hook_l: MoveData
 @export var hook_r: MoveData
 @export var uppercut: MoveData
@@ -55,6 +57,7 @@ enum { NONE, JAB, HOOK_L, HOOK_R, UPPERCUT, DODGE_L, DODGE_R }
 func get_move(move: int) -> MoveData:
 	match move:
 		JAB: return jab
+		CROSS: return cross
 		HOOK_L: return hook_l
 		HOOK_R: return hook_r
 		UPPERCUT: return uppercut

@@ -143,8 +143,8 @@ func _debug_text() -> String:
 	if OS.has_feature("mobile"):
 		return "\n".join(lines)
 	lines.append("")
-	lines.append("P1  W jab  Q/E hooks  S uppercut  A/D dodge  Space block   (pad 1: X, LB/RB, Y, d-pad/stick, B/RT)")
-	lines.append("P2  I jab  U/O hooks  K uppercut  J/L dodge  P block       (pad 2: same)")
+	lines.append("P1  W jab  F cross  Q/E hooks  S uppercut  A/D dodge  Space block   (pad 1: X, A, LB/RB, Y, d-pad/stick, B/RT)")
+	lines.append("P2  I jab  H cross  U/O hooks  K uppercut  J/L dodge  P block       (pad 2: same)")
 	lines.append("1/2 toggle P1 AI / cycle P2 human-easy-normal-hard")
 	lines.append("C swap camera   R restart   Esc menu   T touch overlay (mouse drags act as touches)   F3 hide this")
 	return "\n".join(lines)

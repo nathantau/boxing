@@ -129,8 +129,10 @@ func _punish_move(me: FighterState, opp: FighterState) -> int:
 
 func _random_attack() -> int:
 	var roll := _rng.randf()
-	if roll < 0.5:
+	if roll < 0.35:
 		return InputBits.JAB
+	if roll < 0.5:
+		return InputBits.CROSS
 	if roll < 0.7:
 		return InputBits.HOOK_L
 	if roll < 0.9:

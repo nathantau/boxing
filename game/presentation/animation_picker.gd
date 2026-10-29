@@ -9,6 +9,7 @@ class_name AnimationPicker
 const IDLE := "idle"
 const TIRED := "tired"
 const JAB := "jab"
+const CROSS := "cross"
 const HOOK_L := "hook_l"
 const HOOK_R := "hook_r"
 const UPPERCUT := "uppercut"
@@ -23,11 +24,11 @@ const GET_UP := "get_up"
 const KO := "ko"
 
 ## Every clip the rig looks for, in res://art/boxer/anims/<name>.fbx (or .glb).
-const CLIPS := [IDLE, TIRED, JAB, HOOK_L, HOOK_R, UPPERCUT, BLOCK, PARRY, DODGE_L, DODGE_R, HIT, STAGGER, KNOCKDOWN, GET_UP, KO]
+const CLIPS := [IDLE, TIRED, JAB, CROSS, HOOK_L, HOOK_R, UPPERCUT, BLOCK, PARRY, DODGE_L, DODGE_R, HIT, STAGGER, KNOCKDOWN, GET_UP, KO]
 ## Clips that loop.
 const LOOPING := [IDLE, TIRED]
 ## Optional clips and what to use when they're missing.
-const FALLBACKS := { TIRED: IDLE, PARRY: BLOCK, STAGGER: HIT, KO: KNOCKDOWN, GET_UP: "" }
+const FALLBACKS := { CROSS: JAB, TIRED: IDLE, PARRY: BLOCK, STAGGER: HIT, KO: KNOCKDOWN, GET_UP: "" }
 
 const SECONDS_PER_TICK := 1.0 / Sim.TICK_RATE
 
@@ -36,8 +37,8 @@ const SECONDS_PER_TICK := 1.0 / Sim.TICK_RATE
 static func pick(f: FighterState, tick: int, moves: MoveSet, lengths: Dictionary, timings: ClipTimings) -> Array:
 	match f.action:
 		FighterState.ATTACK:
-			var clip: String = { MoveSet.JAB: JAB, MoveSet.HOOK_L: HOOK_L, MoveSet.HOOK_R: HOOK_R }.get(f.move, UPPERCUT)
-			var impact := timings.jab_impact if clip == JAB else (timings.uppercut_impact if clip == UPPERCUT else timings.hook_impact)
+			var clip: String = { MoveSet.JAB: JAB, MoveSet.CROSS: CROSS, MoveSet.HOOK_L: HOOK_L, MoveSet.HOOK_R: HOOK_R }.get(f.move, UPPERCUT)
+			var impact := timings.jab_impact if clip == JAB or clip == CROSS else (timings.uppercut_impact if clip == UPPERCUT else timings.hook_impact)
 			return _stretched(clip, f, moves.get_move(f.move), impact, lengths)
 		FighterState.DODGE:
 			var clip := DODGE_L if f.move == MoveSet.DODGE_L else DODGE_R

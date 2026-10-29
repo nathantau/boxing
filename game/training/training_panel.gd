@@ -3,7 +3,7 @@ extends CanvasLayer
 ## Training controls and frame data. The table is computed from moves.tres (advantage assumes the
 ## punch connects on its first active frame); "Last" is what actually happened, measured live.
 
-const MOVE_NAMES := ["-", "Jab", "Hook L", "Hook R", "Uppercut", "Dodge L", "Dodge R"]
+const MOVE_NAMES := ["-", "Jab", "Hook L", "Hook R", "Uppercut", "Dodge L", "Dodge R", "Cross"]
 
 ## The TrainingMatch this panel controls.
 var training: Node
@@ -84,7 +84,7 @@ func toggle_pause() -> void:
 func refresh_table() -> void:
 	var moves: MoveSet = training.moves
 	var lines := PackedStringArray(["move      start act rec  dmg  stam  on hit  on block"])
-	for move in [MoveSet.JAB, MoveSet.HOOK_L, MoveSet.HOOK_R, MoveSet.UPPERCUT]:
+	for move in [MoveSet.JAB, MoveSet.CROSS, MoveSet.HOOK_L, MoveSet.HOOK_R, MoveSet.UPPERCUT]:
 		var m := moves.get_move(move)
 		lines.append("%-9s %5d %3d %3d %4d %5d  %+6d  %+8d" % [MOVE_NAMES[move], m.startup, m.active, m.recovery,
 			m.damage, m.stamina_cost, m.advantage_on_hit(), m.advantage_on_block()])

@@ -126,3 +126,16 @@ func test_shield_can_move_to_a_side() -> void:
 	assert_gt(touch._shield_center().x, SAFE.get_center().x)
 	down(touch._shield_center())
 	assert_eq(touch.source.consume(), InputBits.BLOCK, "right-side shield beats the dodge strip")
+
+
+func test_swipe_up_on_right_half_is_cross() -> void:
+	assert_eq(swipe([CENTER + Vector2(200, 0), CENTER + Vector2(205, -60)]), InputBits.CROSS)
+	assert_eq(swipe([CENTER - Vector2(200, 0), CENTER - Vector2(195, 60)]), InputBits.JAB)
+
+
+func test_both_edges_held_is_block() -> void:
+	down(Vector2(40, 300), 0)
+	down(Vector2(1240, 300), 1)
+	assert_eq(touch.source.consume(), InputBits.BLOCK)
+	up(Vector2(1240, 300), 1)
+	assert_eq(touch.source.consume(), InputBits.DODGE_L, "letting go of one edge goes back to dodging")

@@ -123,7 +123,8 @@ func _track_swipe(t: Touch, pos: Vector2) -> void:
 		t.dipping = true
 		t.lowest = pos
 	elif rad_to_deg(absf(Vector2.UP.angle_to(d))) <= JAB_CONE_DEG:
-		_fire(t, InputBits.JAB)
+		# Straight punches use the hand on the side the swipe started: left half jab, right half cross.
+		_fire(t, InputBits.CROSS if t.start.x > _safe.get_center().x else InputBits.JAB)
 	elif (d.x > 0.0) == hooks_follow_fist:
 		_fire(t, InputBits.HOOK_L)
 	else:
@@ -147,6 +148,9 @@ func _update_held() -> void:
 	var bits := 0
 	for t: Touch in _touches.values():
 		bits |= ZONE_BITS[t.zone]
+	# Both edges held at once is a guard (both thumbs out wide), not two dodges.
+	if bits & InputBits.DODGE_L and bits & InputBits.DODGE_R:
+		bits = (bits & ~(InputBits.DODGE_L | InputBits.DODGE_R)) | InputBits.BLOCK
 	source.held = bits
 	queue_redraw()
 
